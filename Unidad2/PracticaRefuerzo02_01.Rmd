@@ -15,10 +15,25 @@ names(datos)[1]
 library(dplyr)
 # print(distinct(datos,datos[,1]))
 for (indice in 1:dim(datos)[2]) {
-  #print(c(names(datos)[indice], class(datos[,indice])))
+  print(c(names(datos)[indice], class(datos[,indice])))
   print(distinct(datos,datos[,indice]))
 }
 #datos$V1
 #class(datos[,4])
+```
+```{r}
+# 5. Indica la proporción de  valores faltantes por columna usando sum e is.na y un apply (usa nrow).
+Cant <- nrow(datos)
+# Contabilizamos la cantidad de elementos faltantes por columna:
+NAs <- apply(is.na(datos),2,sum)
+print(NAs)
+print(Cant)
+print (NAs/Cant*100)
+```
+```{r}
+# 6. Edita la primera columna llevándola al rango 0-5.
+datos$V1
+datos$V1 <- datos$V1 + 2
+datos$V1
 ```
 
