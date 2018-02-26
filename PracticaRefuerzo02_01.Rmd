@@ -1,0 +1,24 @@
+```{r}
+# Lectura de ficheros sin conocer su estructura
+datos<-read.csv(file="http://archive.ics.uci.edu/ml/machine-learning-databases/autos/imports-85.data", na.strings = "?", header = FALSE)
+# 2. Haz un sumario del dataframe.
+summary(datos)
+```
+```{r}
+# 3. Qué dimensión tiene el dataframe?
+dim(datos)
+names(datos)[1]
+```
+```{r}
+# 4. Inspecciona los datos, de qué clase es cada tipo? Extrae los distintos valores que toman los factores.
+# install.packages("dplyr")
+library(dplyr)
+# print(distinct(datos,datos[,1]))
+for (indice in 1:dim(datos)[2]) {
+  #print(c(names(datos)[indice], class(datos[,indice])))
+  print(distinct(datos,datos[,indice]))
+}
+#datos$V1
+#class(datos[,4])
+```
+
