@@ -36,4 +36,12 @@ datos$V1
 datos$V1 <- datos$V1 + 2
 datos$V1
 ```
+```{r}
+# 7. Da una media de los valores de la primera columna respecto a la columna de número de puertas del coche.
+tapply(datos$V1, datos$V6, mean)
+```
+```{r}
+# 8. Extrae los coches  audi que son cuatro puertas con valor V13 menor que 55
+datos[(datos$V3=='audi')&(datos$V6=='four')&(datos$V13<55),]
+```
 
