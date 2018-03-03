@@ -1,0 +1,54 @@
+---
+title: "ACTIVIDAD 2 - UD2"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+---
+
+# Actividad 2 - UD2
+Carga el dataset **titanic** con el comando y haz un sumario
+```{r}
+# install.packages('titanic')
+library(titanic)
+data("titanic_train")
+df <- titanic_train
+head(df)
+str(df)
+summary(df)
+```
+```{r}
+# - Transforma las variables que sean factores en factores. Si son ordinales usa *ordered* para crear factores ordenados. Recuerda usar lapply.
+Titanic_Factorizado <- df
+# str(Titanic_Factorizado)
+Titanic_Factorizado$Survived <- factor(Titanic_Factorizado$Survived, labels = c('DIED','SURVIVED'), ordered = TRUE)
+Titanic_Factorizado$Pclass <- factor(Titanic_Factorizado$Pclass, labels = c('1st','2nd','3rd'), ordered = TRUE)
+Titanic_Factorizado[c("SibSp","Parch")] <- lapply(Titanic_Factorizado[c("SibSp","Parch")], ordered)
+Titanic_Factorizado[c("Sex","SibSp","Parch","Embarked","Cabin")] <- lapply(Titanic_Factorizado[c("Sex","SibSp","Parch","Embarked","Cabin")],factor)
+
+Titanic_Factorizado
+str(Titanic_Factorizado)
+#Titanic_Factorizado$Pclass
+```
+```{r}
+# Representa en un qplot la edad frente a la tarifa, y en un segundo qplot lo mismo pero con la clave de la clase en la que viajaban. Represéntalo a su vez factorizándolo por *Sex* y *Embarked*
+library(ggplot2)
+qplot(Age, Fare, data = Titanic_Factorizado)
+qplot(Age, Fare, data = Titanic_Factorizado, colour = Pclass)
+qplot(Age, Fare, data = Titanic_Factorizado, colour = Sex)
+qplot(Age, Fare, data = Titanic_Factorizado, colour = Embarked)
+qplot(Age, Fare, data = Titanic_Factorizado, colour = Pclass, facets =~ Sex + Embarked)
+```
+```{r}
+# Pinta un boxplot de la edad agrupado según *Sex*
+qplot(Sex, Age, data = Titanic_Factorizado, geom = "boxplot")
+```
+```{r}
+# Pinta un barplot que represente la supervivencia en cada *Pclass* coloreando las barras según esta
+barplot(c(Titanic_Factorizado$Survived,Titanic_Factorizado$Pclass))
+```
+
+- Pinta la supervivencia en función de la categoría *Sex*, ¿qué observas?
+- Pinta la supervivencia en función de la categoría *Pclass*, ¿qué se aprecia?
+- Crea un histograma de *Age*, ¿qué observas?
+- Crea una agrupación de los datos usando `dplyr` de *Sex*  y *Pclass*. Haz sumarios de media, conteo y mediana. ¿Qué podrías decir de los resultados? ¿Hay suficiente muestra para sacar conclusiones en todas las categorías creadas al combinar la edad y la clase?
