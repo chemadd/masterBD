@@ -1,0 +1,98 @@
+---
+title: "ACTIVIDAD 3 - UD3"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_notebook: default
+  html_document: default
+---
+
+## Apartado A
+Pensemos que tenemos el CI de una muestra de 5 individuos:
+ 110
+ 100
+ 115
+ 105
+ 104
+
+Queremos (caso 1) calcular el intervalo de confianza sobre la media
+(al 95%) y (caso 2) indicar si tales sujetos han sido extraidos de una
+poblacion con media 100.
+```{r}
+CoeInt <- c(110,100,115,105,104)
+t.test(CoeInt)
+t.test(CoeInt,conf.level = 0.95)
+t.test(CoeInt,mu=100)
+# Aceptamos H0 ya que el p-valor >= 0.05, por tanto media = 100
+```
+
+
+## Apartado B
+Dado el dataset survey visto previamente, queremos contrastar si la diferencia del pulso entre 
+hombres y mujeres es diferente o no
+¿se puede considerar que el pulso de las mujeres es superior al de los hombres
+a un nivel de confianza del 90% ?
+```{r}
+library(MASS)
+# Contraste de medias: ANOVA
+survey
+t.test(Pulse~Sex,data=survey,conf.level = 0.9)
+# --> p-valor > 0.1 por lo que aceptamos H0: sus medias son iguales
+```
+
+## Apartado C
+
+**Ley de Benford**
+e ha mandado una factura a la empresa Xdata que parece ser falsa. 
+Esta factura tiene muchos números que no parecen generados de modo natural.
+Comprobamos si efectivamente la factura está generada artificalmente
+basándonos en la Ley de Benford https://es.wikipedia.org/wiki/Ley_de_Benford
+ 
+Esta ley trata sobre la distribución de los primeros dígitos en:
+- facturas
+- artículos en revistas
+- direcciones de calles
+- precios de acciones
+- número de habitantes
+- tasas de mortalidad
+- longitud de los ríos
+- Física
+- constantes matemáticas
+- números primos
+
+La ley Benford establece que la distribución natural de los primeros dígitos  es
+
+      0.301,0.176,0.125,0.097,0.079,0.067,0.058,0.051,0.046
+
+Las frecuencias de los primeros dígitos de las facturas de la empresa resultan ser
+
+      7, 13, 12,  9,  9, 13, 11, 10, 16
+
+¿Son facturas falsas?
+```{r}
+distribucion <- c(0.301,0.176,0.125,0.097,0.079,0.067,0.058,0.051,0.046)
+frecuencias <- c(7, 13, 12,  9,  9, 13, 11, 10, 16)
+
+chisq.test(frecuencias,p=distribucion)
+```
+
+
+## Apartado D
+
+#Carga el dataset
+```{r}
+data("PlantGrowth")
+PlantGrowth
+```
+- ¿ Se puede considerar que con los tres tratamientos las plantas tienen el mismo crecimiento?
+- Haz un análisis exploratorio
+- Comprueba las asunciones del modelo
+- Realiza el one-way ANOVA
+- ¿ Qué conclusiones se pueden inferir de esta muestra?
+```{r}
+summary(PlantGrowth)
+tapply(PlantGrowth$weight, PlantGrowth$group, mean)
+boxplot(PlantGrowth$weight~PlantGrowth$group)
+oneway.test(PlantGrowth$weight~PlantGrowth$group)
+# Como p-valor < 0.05 rechazamos que las medias de crecimiento sean iguales, por lo que tienen distinto crecimiento con los 3 tratamientos.
+```
