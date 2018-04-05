@@ -1,0 +1,95 @@
+---
+title: "UD3 N02"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# Ejemplo de inferencia estadística: El Caballero de Meré
+Para entender en qué consiste la estimación puntual proponemos resolver un ejemplo
+clásico: la paradoja de Mèré. Aunque no está claro cuanto hay de cierto en la historia, se
+cree que el Caballero de Mèré era muy aficionado al juego y que, basándose en su propia
+experiencia, proponía la siguiente apuesta:
+
+      De Mèré gana si al tirar 4 veces un dado sale al menos un 6
+    
+------------------------------------------------------------
+
+1. ¿Crees que era un juego “rentable” para el Caballero de Mèré?
+2. ¿Cómo estimarías la probabilidad de ganar el juego?
+3. ¿Cómo generarías una muestra?
+4. ¿Cuál es la distribución en el muestreo del estimador?
+5. ¿Sabrías calcular la probabilidad de ganar el juego?
+
+Lo primero que debemos tener en cuenta es que estamos ante un problema de inferencia paramétrica.
+El parámetro desconocido p no es "la probabilidad de ganar el juego"
+
+Para ello simularemos y crearemos un estimador de ese valor, que será:
+
+      p_hat = "número de partidas ganadas" / "número total de partidas"
+      
+----------------------------------------------------------------------------------------
+```{r}
+n.veces=4
+partidas=1000 #partidas=tama~no muestral
+dados=matrix(sample(1:6,n.veces*partidas,T),nc=n.veces)
+ganadas=sum(apply(dados==6,1,sum)>=1)
+prob.est=ganadas/partidas
+prob.est
+```
+
+
+
+El estadístico que se genera en una muestra está basado en el teorema central de límite y es de la forma
+
+      (p_hat-p)/sqrt(p_hat*(1-p_hat)/n)  ~ N(0,1)
+
+```{r}
+n.veces=4
+partidas=1000 #partidas=tama~no muestral
+n.muestras<-100
+prob.est<-numeric()
+for (i in 1:n.muestras){
+  dados=matrix(sample(1:6,n.veces*partidas,T),nc=n.veces)
+  ganadas=sum(apply(dados==6,1,sum)>=1)
+  prob.est[i]=ganadas/partidas}
+prob.est
+
+plot(density(prob.est))
+```
+
+
+En este caso conocemos la probabilidad real
+pintamos la distribución real contra la estimada por
+simulación:
+
+
+```{r}
+p=1-625/1296
+desv=sqrt(p*(1-p)/partidas)
+x=seq(-0.6,0.6,length=1000)
+plot(density(prob.est))
+lines(x,dnorm(x,mean=p,sd=desv),col=2)
+```
+
+La estimación de p dada por la muestra es
+```{r}
+p_hat <- mean(prob.est)
+p_hat
+```
+
+
+El valor real es
+```{r}
+p
+```
+
+El intervalo de confianza al 95% para la probabilidad es:
+```{r}
+c(p_hat- qnorm(0.975) * desv, p_hat + qnorm(0.975) * desv)
+
+```
+Con los experimentos que hemos realizado, no podemos estar seguros si el juego es exitoso pues el intervalo de confianza al 95 % incluye valores por debajo de 0.5
+

@@ -1,0 +1,226 @@
+---
+title: "UD4 N02"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_notebook: default
+  html_document: default
+---
+
+# Regresión lineal simple
+
+Vemos casos ejemplares de regresión lineal simple
+
+## Regresión lineal 
+
+Cargamos datos
+```{r}
+a.docencia <- c(3,1,1,2,5,6,12,7,3,10,6,11,4,4,16,4,5,3,5,2)
+edad <- c(35,27,26,30,33,42,51,35,45,37,43,36,36,56,29,35,37,29,34,29)
+plot(edad, a.docencia)
+```
+Ajustamos un modelo de regresión lineal simple  de la forma
+$$Y = a X + b$$
+donde  **Y=años de docencia** y **X=edad**
+
+```{r}
+Y <- a.docencia
+X <- edad
+lm(Y~X) -> mod_reg
+mod_reg
+summary(mod_reg)
+```
+El modelo entrenado es muy deficiente porque su R² es muy bajo, además ninguno de sus coeficientes es significativamente no nulo.
+
+Vemos la gráfica y entendemos que sea tan deficiente: la correlación entre las variables es muy baja:
+
+```{r}
+plot(edad,a.docencia)
+abline(mod_reg)
+cor(edad,a.docencia)^2
+
+```
+
+
+Obtenemos los coeficientes del modelo
+```{r}
+mod_reg$coefficients
+mod_reg$coefficients[1]
+mod_reg$coefficients[2]
+```
+También nos da los valores de los residuos ó errores:
+```{r}
+mod_reg$residuals
+```
+
+Se puede entrenar un modelo sin el término independiente si en la fórmula restamos 1. Esto tiene sentido si se quiere imponer la restricción en la que cuando X=0, se tiene Y=0
+$$Y = a X$$
+```{r}
+mod_no_intercept <- lm(a.docencia~edad-1)
+mod_no_intercept
+summary(mod_no_intercept)
+plot(edad,a.docencia)
+abline(mod_no_intercept)
+```
+
+También se puede ajustar un modelo constante, en este caso predice todo el tiempo la media de la Y:
+$$Y = b$$
+```{r}
+mod_constant <- lm(a.docencia~1)
+mod_constant
+summary(mod_constant)
+sd(a.docencia) #desviación típica de años de docencia
+mean(a.docencia) #media de años de docencia
+plot(edad,a.docencia)
+abline(mod_constant)
+```
+Podemos usar el modelo entrenado para realizar una predicción
+```{r}
+nuevosdatos <- data.frame(X=c(30,40,50))
+predict.lm(mod_reg, newdata = nuevosdatos)
+```
+
+
+
+## Regresión polinomial
+
+Este modelo es parabólico ó de grado 2
+$$Y = a X^2 + b X +c $$
+
+```{r}
+lm(a.docencia~edad+I(edad^2))->r2
+r2
+summary(r2)
+```
+Pintamos y predecimos
+```{r}
+plot(a.docencia~edad)
+lines(sort(edad), fitted(r2)[order(edad)], col='red') 
+nuevosdatos <- data.frame(edad=c(30,40,50))
+predict.lm(r2,newdata = nuevosdatos)
+```
+Se pueden montar también modelos polinómicos de grado 3
+$$Y = a X^3 + b X^2 +c X + d $$
+
+```{r}
+lm(a.docencia~edad+I(edad^2)+I(edad^3))->r3
+r3
+summary(r3)
+```
+
+```{r}
+plot(a.docencia~edad)
+lines(sort(edad), fitted(r3)[order(edad)], col='red') 
+predict.lm(r3,newdata = nuevosdatos)
+```
+
+Conforme aumentamos el grado del polinomio la curva tiene más parámetros y la capacidad de ajustarse a la nube de puntos es mayor.
+
+
+## Regresión potencial
+
+Se realiza cuando cambios porcentuales en la variable X suponen cambios porcentuales en la variable Y, como por ejemplo en modelos económicos de elasticidad, su fórmula es
+$$Y = aX^b$$
+
+```{r}
+lm(log(a.docencia)~log(edad))->rpot
+summary(rpot)
+```
+```{r}
+plot(a.docencia~edad)
+lines(sort(edad), exp(fitted(rpot)[order(edad)]), col='red') 
+exp(predict.lm(rpot,newdata = nuevosdatos))
+```
+
+
+
+## Regresión exponencial
+Se usa si variaciones lineales de X suponen variaciones porcentuales de Y.
+$$Y = \exp (a+bX)$$
+```{r}
+lm(log(a.docencia)~edad)->rexp
+summary(rexp)
+plot(a.docencia~edad)
+lines(sort(edad), exp(fitted(rexp)[order(edad)]), col='red') 
+exp(predict.lm(rpot,newdata = nuevosdatos))
+```
+
+
+
+
+
+## Regresión logarítmica
+Se usa si variaciones porcentuales de X incurren en variaciones lineales de Y
+$$Y = a + b \log(x)$$
+```{r}
+lm(a.docencia~log(edad))->rlog
+summary(rlog)
+
+plot(a.docencia~edad)
+lines(sort(edad), fitted(rlog)[order(edad)], col='red') 
+predict.lm(rlog,newdata = nuevosdatos)
+```
+
+
+
+## Regresión hiperbólica
+Se usa cuando las relación entre las variables es inversamente proporcional
+$$Y = a + b/x$$
+
+```{r}
+lm(a.docencia~I(1/edad))->rhiper
+summary(rhiper)
+
+plot(a.docencia~edad)
+lines(sort(edad), fitted(rhiper)[order(edad)], col='red') 
+predict.lm(rhiper,newdata = nuevosdatos)
+```
+
+
+
+## Regresión doble inversa
+
+$$ \dfrac{1}{Y} = \dfrac{a+b}{x}$$
+```{r}
+lm(I(1/a.docencia)~I(1/edad)) -> rdobleinver
+summary(rdobleinver)
+
+plot(a.docencia~edad)
+lines(sort(edad), 1/fitted(rdobleinver)[order(edad)], col='red') 
+predict.lm(rdobleinver,newdata = nuevosdatos)
+```
+
+
+
+### Actividad de refuerzo
+###-----------------
+
+Toma el .csv lamado actreg.csv y ejecuta las regresiones distintas pintando.
+¿Cuál se ajusta mejor? ¿Cuál tiene mejor R^2 ajustado ? 
+
+### SOLUCIÓN:
+
+Los datos se han creado realizando:
+```{r}
+set.seed(0)
+x <- runif(100,1,50)
+y <- 10+log(3*x)+rnorm(100,sd = 0.4)
+
+dat <- data.frame(x=x,y=y)
+
+write.csv(dat,file = "actreg.csv",row.names=FALSE)
+```
+Por lo tanto la regresión mejor es logarítmica:
+```{r}
+read.csv("actreg.csv")
+plot(y~x)
+
+mod_log <- lm(y~log(x))
+mod_log
+summary(mod_log)
+lines(sort(x), fitted(mod_log)[order(x)], col='red') 
+```
+
+
+```
+

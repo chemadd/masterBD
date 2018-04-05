@@ -1,0 +1,193 @@
+---
+title: "UD4 N03"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document:
+    latex_engine: xelatex
+---
+
+## Regresión lineal múltiple
+
+Tomamos un dataset de tasas de ahorro en países
+```{r}
+#install.packages("faraway")
+library(faraway)
+data(savings)
+help(savings)
+attach(savings)
+head(savings)
+```
+Creamos un modelo de la tasa de ahorro sobre algunas variables, se observa que las variables significativas están marcadas con estrellas y tienen un p-valor del contraste t-student bajo:
+```{r}
+savings.lm <- lm(sr ~ pop15 + pop75 + dpi + ddpi, savings)
+savings.lm
+summary(savings.lm)
+```
+Creamos un modelo con todas las variables
+```{r}
+savings.lm <- lm(sr ~., savings)
+savings.lm
+summary(savings.lm)
+
+```
+
+Sólo pop15 y ddpi parecen variables significativamente explicativas, así como el intercept term, vemos los valores
+```{r}
+coefficients(savings.lm)
+```
+Cuando estamos ante un modelo que usa múltiples variables, nos preguntamos si se puede prescindir de parte de estas, seleccionando sólo los predictores relevantes
+
+¿ Se puede prescindir de un conjunto de variables?, ¿en este caso de pop75 y dpi?
+
+Creamos dos modelos anidados y realizamos un ANOVA entre los mismos que nos dice si incluir las variables pop75 y dpi genera un modelo mejor ó no
+```{r}
+savings.lm.1 <- lm(sr ~ pop15 + pop75 + dpi + ddpi, savings)
+savings.lm.2 <- lm(sr ~ pop15 + ddpi, savings)
+
+summary(savings.lm.1)
+summary(savings.lm.2)
+```
+
+El anova realiza el contraste
+
+- H0: beta_pop75 = beta_dpi = 0
+- H1: beta_pop75 != 0 ó beta_dpi != 0
+
+Esto equivale a considerar como hipótesis alternativa que alguno de los coeficientes sea no nulo.
+```{r}
+anova(savings.lm.1,savings.lm.2)
+```
+
+El p-valor es >0.05, por lo tanto usaríamos por tanto, el modelo simplificado
+
+
+## Ejemplo de análisis de regresión múltiplie completo
+El banco de datos contiene información sobre recién nacidos y sus madres en
+un total de 1236 observaciones.
+Determinar para cada uno de los predictores si podemos considerar que el
+correspondiente coeficiente es nulo.
+
+Vamos a cargarlo y a hacer preprocesamiento y un modelo lineal múltiple
+```{r}
+# install.packages("UsingR")
+library("UsingR")
+
+rm(babies)
+data("babies")
+attach(babies)
+apply(is.na(babies),2,sum)
+str(babies)
+```
+Vemos la tabla
+```{r}
+help(babies)
+head(babies,30)
+```
+
+
+
+Declaramos los datos faltantes del siguiente modo:
+```{r}
+babies$wt[wt == 999]
+babies$sex[sex == 9] <- NA
+babies$wt[wt == 999] <- NA
+babies$parity[parity == 99] <- NA
+babies$race[race == 99] <- NA
+babies$age[age == 99] <- NA
+babies$ed[ed == 9] <- NA
+babies$ht[ht == 99] <- NA
+babies$wt1[wt1 == 999] <- NA
+babies$smoke[smoke == 9] <- NA
+babies$time[time == 99] <- NA
+babies$time[time == 98] <- NA
+number[number == 98 | number == 99] <- NA
+
+#esto nos dice cuántos valores faltantes hay por columna en porcentaje
+apply(is.na(babies),2,sum) / nrow(babies)*100
+```
+
+
+
+
+Observamos las composiciones de las columnas
+```{r}
+str(babies)
+unique(outcome)
+unique(sex)
+unique(pluralty)
+```
+Eliminamos columnas constantes al ser inútiles como predictores
+```{r}
+babies[, c("id","outcome","sex","pluralty")] <- NULL
+```
+
+
+Editamos como factores columnas que son categóricas
+```{r}
+
+fact.cols <- c("race","ed","drace","dage","ded","marital","smoke","time","number")
+babies[fact.cols] <- lapply(babies[fact.cols], factor)
+str(babies)
+```
+
+
+Comprobamos los datos
+```{r}
+
+apply(is.na(babies),2,sum)
+unique(babies$pluralty)
+```
+
+
+Antes de ajustar un modelo lineal  hacemos imputación de valores faltantes usando el paquete mis
+sForest explicado en https://stat.ethz.ch/education/semesters/ss2012/ams/paper/missForest_1.2.pdf
+```{r}
+# install.packages("missForest")
+library(missForest)
+#imputamos valores
+babies.imp <- missForest(babies,maxiter = 20,ntree = 500,variablewise = T)
+babies.imp$OOBerror
+apply(babies,2,var,na.rm=TRUE)
+apply(is.na(babies.imp$ximp),2,sum)
+```
+
+
+
+Reemplazamos el valor de babies por la tabla imputada
+```{r}
+babies <- babies.imp$ximp
+```
+
+
+
+Observamos las correlaciones de las variables wt, age y ht
+```{r}
+cor(babies$age,babies$wt)
+cor(babies$ht,babies$wt)
+```
+
+
+Supongamos que pretendemos predecir el peso del niño utilizando como
+variables predictoras las variables gestation, ht, age, wt1 que corresponden con 
+el tiempo de gestación, la altura de la madre, la edad de la madre,
+el peso de la madre antes del nacimiento. Realizamos:
+
+a) Realizar el correspondiente ajuste.
+b) Evaluar el coeficiente de determinación.
+c) Contrastar la hipótesis de que todos los coeficientes excepto la constante son nulos.
+d) Determinar para cada uno de los predictores si podemos considerar que el correspondiente coeficiente es nulo.
+
+```{r}
+
+mod <- lm(wt~ht+gestation+age+wt1,data=babies)
+summary(mod)
+#el coeficiente de ajuste es prácticamente nulo en su capacidad explicativa
+anova(lm(wt~1,data=babies),lm(wt~ht+gestation+age+wt1,data=babies))
+#no podemos considerar que todos los coeficientes sean nulos salvo la constante
+summary(mod)
+#los coeficientes influyentes son ht, wt1, intercept y gestation (gestation en menor medida)
+```
+
+
+

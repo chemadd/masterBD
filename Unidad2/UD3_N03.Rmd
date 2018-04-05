@@ -1,0 +1,142 @@
+---
+title: "UD3 N03"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_notebook: default
+  html_document: default
+---
+# Intervalos de confianza y contrastes de hipótesis
+
+## Distribuciones fundamentales para crear intervalos de confianza:
+Normal-> rnorm, dnorm, pnorm, qnorm
+X^2-> rchisq, dchisq, pchisq, qchisq
+t-Student ->rt, dt, pt, qt
+F-Snedecor -> rf, df, pf, q
+
+Cargamos datos de longitud de lagartos
+```{r}
+lizard <- c(6.2, 6.6, 7.1, 7.4, 7.6, 7.9,
+            8, 8.3, 8.4, 8.5, 8.6,
+           + 8.8, 8.8, 9.1, 9.2, 
+           9.4, 9.4, 9.7, 9.9, 10.2, 10.4, 10.8,
+           + 11.3, 11.9)
+hist(lizard)
+```
+
+
+el siguiente comando nos da un intervalo de confianza al 95
+```{r}
+t.test(lizard)
+```
+
+
+Además, está realizando el contraste de hipótesis de si la media de los lagartos es 0, esto es:
+
+- Hipótesis nula: mu=0
+- Hipótesis alternativa: mu<>0
+
+```{r}
+t.test(lizard, conf.level = 0.9) #modificamos nivel de confianza a 0.9
+```
+
+Como el p-valor es menor que 0.05, se concluye rechazar la hipótesis nula H0
+
+Si queremos centrarnos en el test de hipótesis podemos hacerlo bilateral ó unilateral, esto es, con igualdad ó desigualdades > ó < en la hipótesis nula
+
+```{r}
+t.test(lizard, mu=8.4,conf.level = 0.9) #bilateral con 8.4 90% y H1: mu!=8.4
+t.test(lizard, mu=8.4,alternative = "g" ,conf.level = 0.9) #unilateral H1: mu>8.4
+t.test(lizard, mu=8.4,alternative = "l" ,conf.level = 0.9) #unilateral H1: mu<8.4
+```
+En este casos los p-valores son mayores que 0.05 por lo tanto no podríamos considerar que la media sea distinta de 8.4 ni mayor ni menor. 
+
+Vemos los atributos del  `t.test`
+```{r}
+a <- t.test(lizard, mu=8.4,conf.level = 0.9) 
+a$conf.int
+a$p.value
+a$statistic
+```
+
+
+## Intervalo de confianza para proporciones:
+
+Vemos si podemos considerar que hay la misma proporción de hombres que de mujeres en una encuesta
+```{r}
+library(MASS)   
+help(survey)
+head(survey)
+gender.response <- na.omit(survey$Sex) 
+gender.response
+n <- length(gender.response)    
+k <- sum(gender.response == "Female") 
+k
+n
+prop.test(k, n) 
+```
+
+
+
+Intervalo de confianza para la proporción de hombres:
+
+
+```{r}
+prop.test(k,n)$conf.int
+```
+
+Contraste de hipótesis para la diferencia de medias de dos muestras normales
+- H0: mu_x - mu_y >= 0
+- H1: mu_x-mu_y < 0
+
+```{r}
+x <- rnorm(200,3,2)
+y <- rnorm(200,4,1)
+t.test(x,y,alternative = "l")
+```
+
+
+
+Para hacer los contrastes de manera rigurosa debemos asegurarnos que la distribución se aproxima por una Normal. Para ello tenemos los siguientes contrastes.
+
+En este primer caso generamos datos de una exponencial y observamos mediante el contraste shapiro que el pvalor dictamina que no es normal, a su vez vemos en un qqplot que los puntos no están sobre la línea, esto significa que los cuantiles no están distribuídos como en una normal.
+
+```{r}
+muestra <- rexp(500,10)
+plot(density(muestra))
+shapiro.test(muestra)
+qqnorm(muestra)
+qqline(muestra)
+```
+En este segundo caso, observamos un pvalor que indica que es normal y una adecuación a la línea buena:
+
+```{r}
+muestra <- rnorm(4999,4,2)
+plot(density(muestra))
+shapiro.test(muestra)
+qqnorm(muestra)
+qqline(muestra)
+```
+
+
+Estos tests y qqplots permiten saber si dos muestras distintas proceden de una misma distribución, vemos que no se ajustan:
+```{r}
+muestra2 <- runif(500,0,200)
+ks.test(muestra,muestra2)
+qqplot(muestra,muestra2)
+qqline(muestra)
+```
+
+
+
+Para saber si dos muestras proceden de una población en la que se puede suponer la igualdad de varianzas (las desviaciones cuadráticas respecto a la media son iguales):
+```{r}
+x <- rnorm(100,3,1)
+y <- rnorm(100,8,1.2)
+
+var.test(x,y)
+```
+
+
+
+

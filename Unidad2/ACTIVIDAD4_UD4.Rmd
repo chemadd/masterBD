@@ -1,0 +1,83 @@
+---
+title: "ACTIVIDAD 4 - UD4"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_notebook: default
+  html_document: default
+---
+
+## Apartado A
+
+
+
+¿ Depende el coeficiente intelectual de medidas físicas ?
+Carga "iqphys.csv" y haz una regresión lineal múltiple:
+
+- ¿ Cuál de los predictores explica algo la variabilidad del coeficiente intelctual?
+- ¿ Cuál es el efecto del tamaño cerebral, después de tomar en cuenta el peso y la altura?
+- Da un intervalo de confianza para los coeficientes
+- ¿ Cuál es el intervalo de confianza de IQ para los valores de los predictores: 95,70,180 ?
+- Siguen los residuos una distribución normal? Haz las representaciones del histograma y de de la gráfica cuantil-cuantil convenientes.
+```{r}
+IQPhys<-read.csv("ACTIVIDAD4_UD4_iqphys.csv")
+summary(IQPhys)
+head(IQPhys)
+plot(IQPhys$PIQ,IQPhys$Brain)
+plot(IQPhys$PIQ,IQPhys$Height)
+plot(IQPhys$PIQ,IQPhys$Weight)
+hist(IQPhys$PIQ,20)
+# Hacer una regresion lineal multiple
+regr_linMul<-lm(PIQ~Brain + Height + Weight, data = IQPhys)
+regr_linMul
+summary(regr_linMul)
+plot(regr_linMul)
+# ¿ Cuál de los predictores explica algo la variabilidad del coeficiente intelectual?
+# --> El mas significativo es Brain
+# ¿ Cuál es el efecto del tamaño cerebral, después de tomar en cuenta el peso y la altura?
+regr_linMul_Hei<-lm(PIQ~Brain + Height, data = IQPhys)
+regr_linMul_Wei<-lm(PIQ~Brain + Weight, data = IQPhys)
+regr_linMul_Bra<-lm(PIQ~Brain, data = IQPhys)
+summary(regr_linMul_Hei)
+summary(regr_linMul_Wei)
+summary(regr_linMul_Bra)
+# Da un intervalo de confianza para los coeficientes
+confint(regr_linMul)
+confint(regr_linMul_Hei)
+# ¿ Cuál es el intervalo de confianza de IQ para los valores de los predictores: 95,70,180 ?
+nuevosdatos <- data.frame(Brain=c(95),Height=c(70), Weight=c(180))
+prediccion<-predict.lm(regr_linMul, newdata = nuevosdatos, interval = 'confidence')
+prediccion
+# Siguen los residuos una distribución normal? Haz las representaciones del histograma y de la gráfica cuantil-cuantil convenientes.
+hist(regr_linMul$residuals)
+qqnorm(regr_linMul$residuals)
+qqline(regr_linMul$residuals)
+```
+
+## Apartado B
+
+- Carga el dataset `prostate` en el paquete `ElemStatLearn`
+- Elimina la columna train
+ ¿Cuál es el mejor modelo que explica la variable lpsa ?
+- Da un intervalo de confianza para los coeficientes
+```{r}
+# install.packages("ElemStatLearn")
+library(ElemStatLearn)
+summary(prostate)
+# Elimina la columna train
+datosProstate <- prostate [,!colnames(prostate)=='train']
+summary(datosProstate)
+# ¿Cuál es el mejor modelo que explica la variable lpsa ?
+datosProstate.lmModel <- lm(lpsa ~ lcavol + lweight + age + lbph + svi + lcp + gleason + pgg45, data=datosProstate)
+summary(datosProstate.lmModel)
+datosProstate.Mod <- lm(lpsa ~ lcavol + lweight + svi + age + lbph, data=datosProstate)
+summary(datosProstate.Mod)
+
+stepAIC(datosProstate.lmModel,direction="backward")
+# --> Segun AIC: 
+datosProstate_BestMod <- lm(formula = lpsa ~ lcavol + lweight + age + lbph + svi, data = datosProstate)
+summary(datosProstate_BestMod)
+# Da un intervalo de confianza para los coeficientes
+confint(datosProstate_BestMod)
+```
+

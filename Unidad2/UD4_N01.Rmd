@@ -1,0 +1,59 @@
+---
+title: "UD4 N01"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_notebook: default
+  html_document: default
+---
+
+# Análisis de correlaciones
+
+Vamos a ver un ejemplo rápido de las funciones que se usan para el análisis de correlaciones y cómo se analizan.
+
+Cargamos el dataset de coches y observamos la correlación de consumo "mpg" respecto a las primeras variables, en corr tenemos el coeficiente de correlación R:
+```{r}
+data(mtcars)
+head(mtcars)
+# install.packages("GGally")
+library(GGally)
+ggpairs(mtcars[,1:5])
+```
+Podemos obtener los coeficientes de correlación con el contraste de hipótesis de Pearson **H1: las variables están correladas**
+```{r}
+#instala.packages("Hmisc")
+library(Hmisc)
+
+corrs <- rcorr(as.matrix(mtcars))
+corrs$r #coeficientes de correlación
+corrs$P #pvalor del test de pearson
+```
+Si queremos estudiar en concreto "mpg" respecto al resto:
+```{r}
+R<- corrs$r
+R[1,]
+```
+Otro modo de hacerlo:
+```{r}
+cor(mtcars)
+cor(mtcars$mpg, mtcars)
+```
+Vemos su R²
+```{r}
+cor(mtcars$mpg, mtcars)^2
+```
+Pintamos las variables con bajo R² para ver si podemos realizar una transformación no lineal de la misma de modo que "mpg" quede mejor explicado linealmente respecto a la misma:
+```{r}
+plot(mtcars$mpg, mtcars$hp)
+#buscamos transformaciones que mejoren la correlación de hp
+cor(mtcars$mpg, mtcars$hp)
+cor(mtcars$mpg, log(mtcars$hp))
+cor(mtcars$mpg, exp(mtcars$hp))
+cor(mtcars$mpg, sqrt(mtcars$hp))
+cor(mtcars$mpg, (mtcars$hp)^2)
+```
+Observamos que la transformación logarítmica de hp hace que la correlación con mpg suba considerablemente, pintamos esta nueva nube de puntos:
+```{r}
+plot(mtcars$mpg, log(mtcars$hp))
+```
+

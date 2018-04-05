@@ -1,0 +1,53 @@
+---
+title: "UD3 N05"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_notebook: default
+  html_document: default
+---
+
+# ANOVA
+
+Cargamos datos
+```{r}
+url <- "http://www.statsci.org/data/general/flicker.txt"
+flicker <- read.csv(url,sep="\t")
+write.csv(flicker,"flicker.csv")
+
+```
+Tenemos color de ojos azul, marrón y verde y queremos saber su influencia en la variable numérica Flicker:
+```{r}
+flicker
+is.factor(flicker$Colour)
+levels(flicker$Colour)
+unclass(flicker$Colour)
+```
+
+Representamos para observar las diferencias
+```{r}
+attach(flicker)
+boxplot(Flicker ~ Colour, ylab = "Flicker")
+stripchart(Flicker ~ Colour, vertical=TRUE)
+```
+
+
+
+
+Agrupamos y damos la media y desviación típica según cada factor
+```{r}
+meansd <- function(x) c(mean=mean(x), sd=sd(x))
+by(Flicker, Colour, FUN=meansd)
+```
+
+Aplicamos un ANOVA para dictaminar si son iguales
+
+```{r}
+ #test asumiendo varianzas distintas concluye que no tienen medias iguales
+oneway.test(Flicker ~ Colour)
+#test asumiendo varianzas iguales concluye que no tienen medias iguales
+oneway.test(Flicker ~ Colour, var.equal=TRUE) 
+```
+
+
+

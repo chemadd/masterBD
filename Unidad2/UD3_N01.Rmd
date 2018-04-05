@@ -1,0 +1,316 @@
+---
+title: "UD3 N01"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# Distribuciones de probabilidad en R
+
+Las distribuciones en R tienen las funciones descritas en los apuntes seguidas del nombre en su sintaxis.
+A cada nombre de función dado por R se le agrega un prefijo:
+
+- "d": para la función de densidad (pdf en variable contínua) ó función de masa de probabilidad (pmf en variable discreta)
+- "p": para la función de distribución acumulada (cdf)
+- "q": para la función de cuantiles (qf)
+- "r": para generar número aleatorios acorde a la ley correspondiente
+
+Denotaremos las distribuciones por X.
+
+## Distribución de Bernouilli
+
+Tomalos valores 0 (fracaso) y 1 (éxito). La probabilidad de éxito P(X=1) es igual que el parámetro `p` de la distribución. 
+
+Se denota como `Bernouilli(p)`
+
+```{r}
+#Distribución de Bernouilli
+
+# Calculamos la P(X=1) de una Bernoulli(0.7)
+dbinom(1, 1,0.7)
+# Calculamos la P(X=0) de una Bernoulli(0.7)
+dbinom(0, 1,0.7)
+# Calculamos la func. de distribución acumulada de una Bernoulli(0.7)
+pbinom(0, 1,0.7)
+pbinom(1, 1,0.7)
+# para la función cuantil o percentil
+qbinom(0,1, 0.7)
+qbinom(1,1, 0.7)
+qbinom(0.3,1, 0.7)
+qbinom(0.31,1, 0.7)
+qbinom(0.5,1, 0.7)
+# para generar valores
+rbinom(10,1, 0.7)
+rbinom(1,1, 0.7)
+rbinom(5,1, 0.7)
+```
+
+## Distribución binomial
+
+Se denota por `Binomial(n, p)` donde `n` es el número de experimentos y `p` la probabilidad de éxito
+
+```{r}
+# x, q: Vector de cuantiles.
+# p: Vector de probabilidades.
+# n: Número de observaciones
+# size: Números de ensayos(debe ser cero o más).
+# prob: Probabilidad de éxito en cada ensayo.
+# log, log.p: Parámetro booleano, si es TRUE, las probabilidades p se ofrecen como log(p).
+# lower.tail: Parámetro booleano, si es TRUE (por defecto), las probabilidades son P[X ≤ x], de lo
+# contrario, P[X > x].
+
+# Calculamos la P(X=3) de una Binomial(10,0.5)
+dbinom(3, 10, 0.5)
+# Calculamos la P(X=6) de una Binomial(10,0.5)
+dbinom(6, 10, 0.5)
+# Calculamos la P(X=2,1,0) de una Binomial(10,0.5)
+dbinom(c(2, 1, 0), 10, 0.5)
+# Calculamos la P(X<=2) de una Binomial(10,0.5)
+sum(dbinom(c(0, 1, 2), 10, 0.5))
+# Que coincide con la funci´on pbinom
+# Calculamos la P(X>2) de una Binomial(10,0.5)
+pbinom(2,10,0.5, lower.tail=F)
+pbinom(2,10,0.5)
+pbinom(10,10,0.5)
+
+# Los valores de X que tiene una probabilidad de ocurrir en torno al 90\%
+qbinom(c(0.90), 10, 0.5)
+
+# Los valores de X que tiene una probabilidad de ocurrir en torno al 95\%
+qbinom(c(0.95), 10, 0.5)
+# 2 n´umeros aleatorios de una binomial
+rbinom(2,10,0.5)
+# 9 n´umeros aleatorios de una binomial
+rbinom(9,10,0.5)
+
+# dev.off()
+hist(rbinom(500,10,0.6))
+```
+
+### Actividad de refuerzo
+###-----------------
+Supongamos que la probabilidad de tener una unidad defectuosa en una línea de ensamblaje es de 0.05. 
+
+- Si el conjunto de unidades terminadas constituye un conjunto de ensayos independientes: ¿cuál es la probabilidad de que entre diez unidades dos se encuentren defectuosas?
+- ¿y de que a lo sumo dos se encuentren defectuosas?
+- ¿cual es la probabilidad de que por lo menos una se encuentre defectuosa?
+- Se quiere saber una acotación de cuántas unidades defectuosas hay en el 99% de los casos, 
+cuánto es este máximo?
+- Si se toman 10000 unidades, cuál es el valor esperado de unidades defectuosas?
+```{r}
+#Supongamos que la probabilidad de tener una unidad defectuosa en una línea de ensamblaje es de 0.05. 
+# Si el conjunto de unidades terminadas constituye un conjunto de ensayos independientes: ¿cuál es la probabilidad de que entre diez unidades dos se encuentren defectuosas?
+dbinom(2, 10, 0.05)
+# ¿y de que a lo sumo dos se encuentren defectuosas?
+pbinom(2,10,0.05)
+# - ¿cual es la probabilidad de que por lo menos una se encuentre defectuosa?
+1-pbinom(0,10,0.05)
+#Se quiere saber una acotación de cuántas unidades defectuosas hay en el 99% de los casos, cuánto es este máximo?
+qbinom(0.99,10,0.05)
+#- Si se toman 10000 unidades, cuál es el valor esperado de unidades defectuosas?
+10000*0.05
+```
+
+### SOLUCIÓN:
+```{r}
+#   ¿cuál es la probabilidad de que entre diez unidades dos se encuentren defectuosas?
+dbinom(2,10,0.05)
+# - ¿y de que a lo sumo dos se encuentren defectuosas?
+dbinom(1,10,0.05)
+pbinom(2,10,0.05)
+1-pbinom(2,10,0.05)
+# - ¿cual es la probabilidad de que por lo menos una se encuentre defectuosa?
+1-pbinom(0,10,0.05)
+# - Se quiere saber una acotación de cuántas unidades defectuosas hay en el 99% de los casos, 
+# cuánto es este máximo?
+qbinom(0.99,10,0.05)
+# - Si se toman 10000 unidades, cuál es el valor esperado de unidades defectuosas?
+10000*0.05
+mean(rbinom(20000,10000,0.05))
+```
+
+## Distribución de Poisson
+
+Se denota por `Po($\lambda$)` donde $\lambda$ es la tasa de ocurrencia en el intervalo de tiempo fijado de la variable.
+```{r}
+# dpois(x, lambda, log = F); Devuelve resultados de la funci´on de densidad.
+# ppois(q, lambda, lower.tail = T, log.p = F); Devuelve resultados de la funci´on de distribuci´on acumulada.
+# qpois(p, lambda, lower.tail = T, log.p = F); Devuelve resultados de los cuantiles de la Poisson.
+# rpois(n, lambda); Devuelve un vector de valores binomiales aleatorios.
+# Con:
+#   x: Vector de cuantiles (Valores enteros positivos).
+#   q: Vector de cuantiles.
+#   p: Vector de probabilidades.
+#   n: N´umeros de valores aleatorios a devolver.
+#   prob: Probabilidad de ´exito en cada ensayo.
+#   lambda: Vector de medias (valor no negativo).
+#   log, log.p: Par´ametro booleano, si es TRUE, las probabilidades p se ofrecen como log(p).
+#   lower.tail: Par´ametro booleano, si es TRUE (por defecto), las probabilidades son P [X ≤ x], de lo
+# contrario, P [X > x]
+
+# Calcular la P(X = 1) de una Poisson(3)
+dpois(1, 3)
+dpois(c(1,8), 3)
+# Calcular la P(X <= 3) de una Poisson(3)
+ppois(3,3)
+# Calcular la P(X > 3) de una Poisson(3)
+ppois(3, 3, lower.tail=F)
+# Calcular el valor de la variable aleatoria X, dada la probabilidad 0.985
+qpois(0.985, 3)
+
+
+hist(rpois(300,5))
+hist(rpois(300,3))
+hist(rpois(300,3))
+```
+
+
+
+### Actividad de refuerzo
+###-----------------
+Una empresa electrónica observa que el número de componentes que fallan antes de cumplir 100 horas de funcionamiento es una variable aleatoria de Poisson. 
+Si el número promedio de estos fallos es ocho,
+
+- ¿cuál es la probabilidad de que falle un componente en 25 horas?
+- ¿y de que fallen no más de dos componentes en 50 horas?
+ppois(2,4)
+- ¿cuál es la probabilidad de que fallen por lo menos diez en 125 horas?
+- ¿cuántas horas habría que garantizar al cliente que duran para que en un 90% de los casos se cumpla?
+### SOLUCIÓN:
+```{r}
+# ¿cuál es la probabilidad de que falle un componente en 25 horas?
+dpois(1,2)
+# ¿y de que fallen no más de dos componentes en 50 horas?
+ppois(2,4)
+# ¿cuál es la probabilidad de que fallen por lo menos diez en 125 horas?
+ppois(9.9,10,lower.tail = T)
+# ¿cuántas horas habría que garantizar al cliente que duran para que en un 90% de los casos se cumpla?
+# 
+qexp(0.9,8/100)
+```
+
+## Distribución Normal
+
+Se denota por `N($\mu$, $\sigma$)` donde $\mu$ es la media y $\sigma$ es la desviación típica (raíz cuadrada de la varianza) de la distribución.
+
+```{r}
+# dnorm(x, mean = 0, sd = 1, log = F); Devuelve resultados de la funci´on de densidad.
+# pnorm(q, mean = 0, sd = 1, lower.tail = T, log.p = F); Devuelve resultados de la funci´on de distribuci´on
+# acumulada.
+# qnorm(p, mean = 0, sd = 1, lower.tail = T, log.p = F); Devuelve resultados de los cuantiles de la
+# Normal.
+# rnorm(n, mean = 0, sd = 1); Devuelve un vector de valores normales aleatorios.
+# Con:
+#   x, q: Vector de cuantiles.
+# p: Vector de probabilidades.
+# n: N´umeros de observaciones.
+# mean: Vector de medias. Por defecto, su valor es 0.
+# sd: Vector de desviaci´on est´andar. Por defecto, su valor es 1.
+# log, log.p: Par´ametro booleano, si es TRUE, las probabilidades p son devueltas como log (p).
+# lower.tail: Par´ametro booleano, si es TRUE (por defecto), las probabilidades son P [X ≤ x], de lo
+# contrario, P [X > x].
+
+# Calcular la P(Z>1) de una N(0,1)
+pnorm(1, mean = 0, sd = 1, lower.tail = F)
+# Calcular la P(-2<Z<2) de una N(0,1)
+pnorm(c(2), mean = 0, sd = 1) - pnorm(c(-2), mean = 0, sd = 1)
+# Calcular la P(0<Z<1.96) de una N(0,1)
+pnorm(1.96, mean = 0, sd = 1) - pnorm(0, mean = 0, sd = 1)
+# Calcular la P(Z<=z)=0,5793 de una N(0,1)
+qnorm(0.5793, mean = 0, sd = 1)
+# Calcular la P(Z>150) de una Normal de media 125 y la desviaci´on est´andar 50.
+pnorm(150, mean = 125, sd = 50, lower.tail = F)
+
+hist(rnorm(5000,3,2))
+```
+## Distribución Exponencial
+
+Se denota por `Exponencial($\lambda$)` donde $\lambda$ indica la misma tasa de la Poisson entre los eventos cuyos tiempos intermedios mide la distribución.
+
+Trabajamos con `Exponencial(2)` simulando que sea la duración de una máquina funcionando hasta su avería
+```{r}
+#los valores negativos tienen densidad 0
+dexp(-4, 2)
+#los valores positivos tienen densidades decrecientes
+dexp(1, 2)
+dexp(5, 2)
+#su cdf, vemos que es creciente
+pexp(1, 2)
+pexp(3, 2)
+#su qf, averiguamos cuanto dura la máquina que dura más que el 90% de las máquinas
+qexp(0.9, 2)
+#simulamos la duración de 7 máquinas
+rexp(7, 2)
+#calculamos la media y varianza de una simulación con 100 máquinas
+#observa que se aproximan a 0.5
+mean(rexp(100, 2))
+var(rexp(100,2))
+```
+
+### Actividad de refuerzo
+###-----------------
+Un servicio de asistencia técnica en carretera ha comprobado que en las mañanas de los fines de semana el número de llamadas que recibe, por término medio, es de 3 llamadas cada hora. Un operario comienza su jornada de sábado a las 8 de la mañana. Suponiendo que las llamadas se realizan de forma independiente y con tasa constante:
+- ¿Cuál es la probabilidad de que reciba la primera llamada antes de las 8:15?
+- ¿Cuál es la probabilidad de que reciba 4 llamadas en las dos primeras horas de su jornada de trabajo?
+- Si lleva 10 minutos sin recibir ninguna llamada, ¿cuál es la probabilidad de que reciba una nueva llamada en menos de 15 minutos?
+### SOLUCIÓN:
+```{r}
+#¿Cuál es la probabilidad de que reciba la primera llamada antes de las 8:15?
+pexp(15,0.05)
+#¿Cuál es la probabilidad de que reciba 4 llamadas en las dos primeras horas de su jornada de trabajo?
+dpois(4, 6)
+#Si lleva 10 minutos sin recibir ninguna llamada, ¿cuál es la probabilidad de que reciba una nueva llamada en menos de 15 minutos?
+pexp(15,0.05)
+```
+
+### Actividad de refuerzo
+###-----------------
+- Genera una secuencia de 50 lanzamientos de moneda (0 ó 1)
+- Una "carrera" es una secuencia de unos seguidos ó de ceros seguidos.
+¿Cuál es la carrera más larga en la secuencia generada?
+- Genera una aplicación que calcule este valor dado un vector con 50 ceros y unos.
+- Simula mil experimentos con 50 lanzamientos de moneda cada uno y
+aproxima el valor de las probabilidades de cada una de las longitudes usando la regla de Laplace. Representa el histograma de las probabilidades.
+Obtén una aproximación de la media del valor de la carrera más larga en la secuencia.
+
+### SOLUCIÓN:
+
+```{r}
+carrera <-rbinom(50,1,0.5)
+
+max_carrera=0
+c=0
+
+for (i in 1:length(carrera)){
+  if (carrera[i]==1){
+    c = c+1
+  }else{c=0}
+  max_carrera=max(c(c,max_carrera))
+}
+
+experimento <- function(n_lanzamientos){
+  carrera <- rbinom(n_lanzamientos,1,0.5)
+  for (i in 1:length(carrera)){
+    if (carrera[i]==1){
+      c = c+1
+    }else{c=0}
+    max_carrera=max(c(c,max_carrera))
+  }
+  return(max_carrera)
+}
+experimento(50)
+
+simula <- function(n_experimentos,n_lanzamientos){
+  resultados <- c()
+  for (i in 1:n_experimentos){
+  resultados <-append(resultados,experimento(n_lanzamientos))}
+  return(list(resultados=resultados,media=mean(resultados)))
+}
+
+simula(1000,50)
+```
+
+
+

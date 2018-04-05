@@ -1,0 +1,98 @@
+---
+title: "ACTIVIDAD 3 UD 3 SOLUCIONES"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_notebook: default
+  html_document: default
+---
+## Apartado A
+
+```{r}
+coefint <- c(110,100,115,105,104)
+
+
+
+t.test(coefint,mu=100)
+t.test(coefint,mu=100,conf.level = 0.99)
+
+
+```
+El intervalo de confianza es 99.59193 114.00807 y se puede considerar que la media es 100.
+
+## Apartado B
+
+```{r}
+library(MASS)
+t.test(Pulse~Sex,data=survey)
+t.test(Pulse~Sex,alternative="g",data=survey)
+```
+
+
+La diferencia de medias entre los pulsos de ambos sexos no se puede considerar ni distinta ni mayor que cero.
+
+## Apartado C
+
+Realizamos un test chi cuadrado de bondad de ajuste:
+```{r}
+prob <- c(0.301,0.176,0.125,0.097,0.079,0.067,0.058,0.051,0.046)
+freqs <- c(7, 13, 12,  9,  9, 13, 11, 10, 16)
+
+chisq.test(freqs,p=prob)
+```
+
+
+No se pueden considerar iguales las distribuciones, por tanto las facturas no cumplen la Ley Benford y son potencialmente falsas.
+
+## Apartado D
+
+```{r}
+data("PlantGrowth")
+PlantGrowth
+head(PlantGrowth)
+attach(PlantGrowth)
+str(PlantGrowth)
+```
+```{r}
+boxplot(weight ~ group)
+stripchart(weight ~ group, vertical=TRUE)
+```
+
+
+
+```{r}
+par(mfrow=c(3,1))
+hist(weight[group=="ctrl"])
+hist(weight[group=="trt1"])
+hist(weight[group=="trt2"])
+```
+
+```{r}
+oneway.test(weight ~ group) #son distintos
+```
+
+
+
+```{r}
+#entre las clases ctrl y trt1 njo se puede considerar que haya diferencia
+PlantGrowth[group!="trt2",]
+oneway.test(weight ~ group,data = PlantGrowth[group!="trt2",])
+```
+
+
+```{r}
+#entre las clases agrupadas ctrl+trt1 enfrentadas a trt2:
+M <- PlantGrowth
+M[M$group=="ctrl","group"] <- "trt1"
+M
+```
+
+```{r}
+oneway.test(weight~group,M)
+#se puede considerar que hay dos únicas clases
+```
+
+
+
+
+

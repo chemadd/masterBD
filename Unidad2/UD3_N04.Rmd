@@ -1,0 +1,85 @@
+---
+title: "UD3 N04"
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document: default
+---
+
+# Contrastes no parámetricos
+ 
+
+## Test de independencia para variables categóricas
+
+Es un test que indica si dos variables extraídas en una muestra pareada (de los mismos experimentos), son independientes o no. Entendemos ser independiente como que el resultado de una variable no influye en el valor de la otra. Como ejemplo: queremos ver si el peso es independiente de la altura en un ser humano.
+
+En este caso vemos si la variable "fumar" es independiente de "hacer ejercicio", concluimos que son independientes ya que la H1 es ser dependiente y el p-valor es mayor que 0.05
+```{r}
+library(MASS)  
+head(survey)
+tbl <- table(survey$Smoke, survey$Exer) 
+tbl                 #tabla de contingencia
+chisq.test(tbl)  #H1: son dependientes
+```
+
+
+
+## Test bondad de ajuste entre histogramas de variables categóricas
+
+Vemos si se puede considerar que una muestra de una variable categórica se ajusta a una distribución ideal, H1 significa que le ajuste no es adecuado. En este caso lo es
+```{r}
+x <- rbinom(500,4,0.7)
+y <- rbinom(500,4,0.6)
+par(mfrow=c(1,2))
+barplot(table(x) / sum(table(x)))
+barplot(table(y) / sum(table(y)))
+
+chisq.test(table(x),table(y))
+```
+Más ejemplos:
+
+```{r}
+x <- c(89,37,30,28,2)
+p <- c(40,20,20,15,5)
+chisq.test(x,p)
+chisq.test(x,5*x)
+```
+
+
+
+## Test de independencia para variables contínuas
+
+### Mann-Whitney distribuciones contínuas e independientes
+```{r}
+library(MASS)
+data("mtcars")
+head(mtcars)
+mtcars$mpg #gasto
+mtcars$am #automático o manual
+#automático y manual son independientes
+wilcox.test(mpg ~ am, data=mtcars) 
+# son distribuciones diferentes
+kruskal.test(mpg ~ am, data=mtcars)
+```
+
+
+Vemos si ambas categorías son normales, esto es necesario para el test de Mann-Whitney
+```{r}
+par(mfrow=c(1,2))
+qqnorm(mtcars$mpg[mtcars$am==0])
+qqline(mtcars$mpg[mtcars$am==0])
+qqnorm(mtcars$mpg[mtcars$am==1])
+qqline(mtcars$mpg[mtcars$am==1])
+```
+
+
+
+
+## Wilcoxon Signed-Rank Test
+No requiere normalidad, sirve para determinar si dos muestras de poblaciones dependientes han sido extraídas de la misma población
+```{r}
+
+head(immer)
+wilcox.test(immer$Y1, immer$Y2, paired=TRUE)
+```
+

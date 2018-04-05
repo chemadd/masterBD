@@ -1,0 +1,115 @@
+---
+title: "UD4 N04"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_notebook: default
+  html_document: default
+---
+
+## Selección de modelos
+
+Vemos criterios de comparación de modelos, primero cargamos datos:
+```{r}
+library(MASS)
+data(Boston)
+head(Boston)
+
+sd(Boston$medv)
+hist(Boston$medv,20)
+```
+
+
+
+Hay una anomalía en los datos en el valor 50, quitamos estas casas y generamos un modelo sobre todas las variables. Con `confint` sacamos intervalos de confianza para los coeficientes del modelo
+```{r}
+Boston2 <- Boston[Boston$medv<50,]
+hist(Boston2$medv,20)
+mod <- lm(medv~.,data=Boston2)
+summary(mod)
+confint(mod)
+mod_red <- lm(medv~.-age-indus,data=Boston2)
+```
+
+
+Calculamos la matriz de correlaciones y la fila de correlaciones respecto a la variable objetivo "medv"
+```{r}
+M <- cor(Boston2)
+M[14,]
+ncol(Boston2)
+```
+
+Usamos AIC para comparar ambos modelos, es ligeramente mejor el modelo que tiene todas las variables
+```{r}
+AIC(lm(medv~.,data=Boston2))
+AIC(lm(medv~.-age-indus,data=Boston2))
+```
+
+
+
+Comprobamos con BIC, éste dictamina que es mejor modelo el que no tiene las variables "age" e "indus". Los criterios no tienen por qué coincidir
+```{r}
+BIC(lm(medv~.,data=Boston2))
+BIC(lm(medv~.-age-indus,data=Boston2))
+```
+
+
+## Funciones step de selección de variables
+Se puede automatizar la selección de modelos con la función `step`. Esta función prueba todos los modelos con distintas variables anidándose aumentando variables ó reduciéndolas. Sigue el proceso en cascada hasta que el criterio deja de aumentar.
+
+Selección por pasos del mejor modelo en función de los atributos elegidos usando el criterio AIC y añadiendo cada vez más variables:
+```{r}
+colnames(Boston)
+attach(Boston)
+library(MASS)
+step <- stepAIC(lm(medv~1,data=Boston2),scope = 
+                  medv~crim+zn+indus+chas+nox+rm+age+dis+tax+ptratio+black+lstat, direction="forward")
+step
+```
+
+
+
+```{r}
+step$anova # resultados
+step$call #es el mejor modelo resultante
+AIC(step)
+step
+```
+
+
+Otro modo de escribirlo estableciendo explícitamente el modelo mayor y el menor. También se puede indicar la dirección de evolución con "forward", "backward" y "both"
+```{r}
+fit1 <- lm(medv~crim+zn+indus+chas+nox+rm+age+dis+tax+ptratio+black+lstat,data=Boston2)
+fit0 <- lm(medv~1,data=Boston2)
+
+stepAIC(fit1,direction="backward")
+stepAIC(fit0,direction="forward",scope=list(upper=fit1,lower=fit0))
+stepAIC(fit0,direction="both",scope=list(upper=fit1,lower=fit0))
+```
+
+Los tres resultados anteriores dan como mejor modelo el mismo.
+
+Verificamos el ajuste de este modelo, pintando sus residuos y verificando que sean normales, viendo su AIC. En este caso los residuos tienen un fuerte sesgo hacia la derecha que indica que el modelo no está siendo muy adecuado.
+```{r}
+mod <- lm(medv ~ lstat + rm + ptratio + tax + black + dis + nox + age +  zn + crim + indus,data= Boston2)
+extractAIC(mod,scale=0)
+coefficients(mod)
+hist(mod$residuals)
+qqnorm(mod$residuals)
+qqline(mod$residuals)
+shapiro.test(mod$residuals) #hay un fuerte sesgo hacia la derecha y  no es normal la distribución
+summary(mod)
+```
+
+
+
+Observamos que si quitamos tax el AIC empeora
+```{r}
+extractAIC(lm(medv ~ lstat + rm + ptratio + tax + black + dis + nox + age +  zn + crim + indus,data= Boston2),scale=0)
+extractAIC(lm(medv ~ lstat + rm + ptratio  + black + dis + nox + age +  zn + crim + indus,data= Boston2),scale=0)
+```
+
+
+
+
+
