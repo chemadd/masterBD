@@ -1,0 +1,205 @@
+---
+title: "UD2 N02"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+---
+
+Ampliación de representación con GGplot
+
+<img src='referencias ggplot.png'>
+
+
+
+```{r}
+# install.packages(c("hexbin","gcookbook"))
+libs <- c("ggplot2", "plyr", "hexbin", "gcookbook")
+lapply(libs, require, character.only = T)
+```
+
+```{r}
+#cargamos datos
+data(diamonds)
+head(diamonds)
+str(diamonds)
+```
+
+```{r}
+#histogramas más sofisticados
+set.seed(6298)
+diamonds_small <- diamonds[sample(nrow(diamonds), 1000), ]
+ggplot(diamonds_small, aes(x = price)) + geom_histogram()
+ggplot(diamonds_small, aes(x = price)) + geom_histogram(binwidth = 1000)
+```
+
+```{r}
+#polinomios de frecuencias con colores en función de un factor
+ggplot(diamonds_small, aes(price, ..density.., colour = cut)) + geom_freqpoly(binwidth = 1000)
+```
+
+```{r}
+#más opciones, histogramas solapados con distintos colores en función de un factor
+hist_cut <- ggplot(diamonds_small, aes(x = price, fill = cut))
+hist_cut + geom_histogram(binwidth = 1000)
+```
+
+```{r}
+#gráficos de densidad con diferentes factores marcando colores
+ggplot(diamonds_small, aes(price, fill = cut)) + geom_density(alpha = 0.2)
+```
+
+```{r}
+#boxplot respecto a un factor en la misma gráfica 
+p <- ggplot(diamonds, aes(cut, price))
+p + geom_boxplot()
+```
+
+```{r}
+#scatterplots
+ggplot(diamonds, aes(x = carat, y = price)) + geom_point()
+```
+
+```{r}
+#se puede usar un shape específico para los puntos
+ggplot(diamonds, aes(x = carat, y = price)) + geom_point(shape = 25, size = 1)
+```
+
+```{r}
+#se puede pintar en función de un factor
+ggplot(diamonds, aes(x = carat, y = price, colour = cut)) + geom_point(size = 1.5)
+```
+
+```{r}
+#incluso se puede representar en una escala de grises en función del valor de un atributo contínuo
+easy <- ggplot(diamonds, aes(x = carat, y = price))
+easy + geom_point(alpha = 0.1)
+```
+
+```{r}
+easy + geom_point(alpha = 0.05)
+```
+
+```{r}
+#se puede hacer un scatterplot con bins en rectángulos coloreados en funciónd e una variable
+bin <- ggplot(diamonds, aes(x = carat, y = price))
+bin + stat_bin2d()
+```
+
+```{r}
+#se pueden hacer gráficos aún más sofisticados:
+bin + stat_binhex() + scale_fill_gradient(low = "lightblue", high = "red", breaks = c(0, 
+                                                                                      500, 1000, 2000, 4000, 6000, 8000), limits = c(0, 8000)) + stat_smooth(method = lm) + 
+  ylim(0, 20000)
+```
+Cargamos ahora otro dataset
+```{r}
+data(mpg)
+head(mpg)
+str(mpg)
+```
+Creamos gráficos categóricos con colores en función de factores
+$\sum_{i=1}^n$
+```{r}
+qplot(data = mpg, x = displ, y = hwy, color = manufacturer)
+```
+```{r}
+qplot(data = mpg, x = displ, y = hwy, color = class)
+```
+# Faceting
+
+Consiste en agrupar el dataframe según factores y pintar scatterplots de variables en función de esos agrupamientos:
+```{r}
+qplot(data = mpg, x = displ, y = hwy, color = manufacturer, facets = ~class)
+```
+```{r}
+
+```
+```{r}
+myGG <- ggplot(mpg, aes(x = displ, y = hwy))
+myGG + geom_point(aes(color = manufacturer)) + stat_smooth(method = lm, se = FALSE)
+```
+Pintamos con variación estándar:
+```{r}
+myGG <- ggplot(mpg, aes(x = displ, y = hwy))
+myGG + geom_point(aes(color = manufacturer)) + stat_smooth(method = lm)
+```
+```{r}
+myGG + geom_point(aes(color = manufacturer)) + stat_smooth(method = lm, se = FALSE) + 
+    facet_grid(class ~ .)
+```
+# Ajustando modelos lineales gráficamente
+Veremos otro tipo de dibujos que se pueden hacer sobre los scatterplots en los que aparecen representados modelos lineales con su rango de variación con un cierto intervalo de confianza.
+Cargamos otro data set
+```{r}
+data(cars)
+head(cars)
+str(cars)
+```
+
+
+
+
+```{r}
+sp <- ggplot(cars, aes(x = speed, y = dist))
+sp + geom_point()
+```
+Añadimos recta de regresión con región de variación
+```{r}
+sp + geom_point() + stat_smooth(method = lm)
+```
+Modificamos el intervalo de confianza:
+```{r}
+sp + geom_point() + stat_smooth(method = lm, level = 0.99)
+```
+Pintamos una curva regularizada ó regresión lineal suavizada
+```{r}
+# Loess
+sp + geom_point() + stat_smooth(method = loess, se = FALSE)
+```
+#Más Faceting
+```{r}
+library(reshape2)
+# Look at first few rows
+head(tips)
+str(tips)
+```
+
+```{r}
+sp <- ggplot(tips, aes(x=total_bill, y=tip/total_bill)) + geom_point(shape=1)
+sp
+```
+```{r}
+sp + facet_grid(sex ~ .)
+```
+
+```{r}
+sp + facet_grid(. ~ sex)
+```
+Dividimos por *sex* en vertical y  *day* en horizontal:
+```{r}
+sp + facet_grid(sex ~ day)
+```
+Dividimos por día en horizontal construyendo dos a dos las columnas
+
+```{r}
+sp + facet_wrap( ~ day, ncol=2)
+```
+Más opciones:
+```{r}
+# A histogram of bill sizes
+hp <- ggplot(tips, aes(x=total_bill)) + geom_histogram(binwidth=2,colour="white")
+# Histogram of total_bill, divided by sex and smoker
+hp + facet_grid(sex ~ smoker)
+
+# Same as above, with scales="free_y"
+hp + facet_grid(sex ~ smoker, scales="free_y")
+
+# With panels that have the same scaling, but different range (and therefore different physical sizes)
+hp + facet_grid(sex ~ smoker, scales="free", space="free")
+```
+
+
+
+
+

@@ -1,0 +1,214 @@
+---
+title: "UD2 N01"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+---
+
+# Tipos de gráficas básicas y variantes en `ggplot`
+
+## Scatterplots
+Pintamos una gráfica de dispersión de las variables distancia de frenada y velocidad de cars. Se observa que mayor velocidad implica mayor distancia de frenada en general.
+```{r}
+data(cars)
+help(cars)
+head(cars)
+plot(cars)
+```
+Cargamos la librería ggplot para ver cómo mejora los dibujos básicos que tiene integrados R. Hay que instalarla antes de cargarla con el comando comentado
+```{r}
+# install.packages("ggplot2")
+library(ggplot2)
+ggplot(cars, aes(x=speed, y=dist)) + #carga los datos y establece las variables
+    geom_point(shape=1)      # usa círculos huecos
+
+ggplot(cars, aes(x=speed, y=dist)) +
+    geom_point(shape=1) +    #  usa círculos huecos
+    geom_smooth(method=lm)   # añade recta de regresión con intervalo de confianza 95% 
+
+ggplot(cars, aes(x=speed, y=dist)) +
+    geom_point(shape=1) +    # usa círculos huecos
+    geom_smooth(method=lm, se=FALSE)  # añade recta de regresión sin región de confianza
+
+ggplot(cars, aes(x=speed, y=dist)) +
+    geom_point(shape=1) +   # usa círculos huecos
+    geom_smooth()           # añade una curva suavizada sobre los datos y su región de confianza
+```
+Más gráficos de dispersión
+
+```{r}
+#cargamos datos
+data(diamonds)
+head(diamonds)
+str(diamonds)
+
+ggplot(diamonds, aes(x = carat, y = price)) + geom_point()
+
+#se puede usar un shape específico para los puntos
+ggplot(diamonds, aes(x = carat, y = price)) + geom_point(shape = 25, size = 1)
+#se puede pintar en función de un factor
+ggplot(diamonds, aes(x = carat, y = price, colour = cut)) + geom_point(size = 1.5)
+#incluso se puede representar en una escala de grises en función del valor de un atributo contínuo
+easy <- ggplot(diamonds, aes(x = carat, y = price))
+easy + geom_point(alpha = 0.1)
+easy + geom_point(alpha = 0.05)
+
+#se puede hacer un scatterplot con bins en rectángulos coloreados en funciónd e una variable
+bin <- ggplot(diamonds, aes(x = carat, y = price))
+bin + stat_bin2d()
+```
+
+## Histogramas
+
+Cargamos el dataset de vehículos y consumos. Pintamos un histogama de sus consumos en autovía.
+```{r}
+data(mpg)
+help(mpg)
+head(mpg)
+hist(mpg$hwy)
+```
+Representaciones en ggpllot de histogramas con opciones de curva de densidad y establecimiento del número de barras en las que se parte la representación.
+
+```{r}
+ggplot(mpg, aes(x=hwy)) + geom_histogram(binwidth=3) #establece el ancho de cada partición
+
+ggplot(mpg, aes(x=hwy)) + geom_histogram(bins=30) # establece el número de particiones
+
+ggplot(mpg, aes(x=hwy)) +
+    geom_histogram(binwidth=.5, colour="black", fill="white") #opciones de color
+
+# pinta una curva de densidad
+ggplot(mpg, aes(x=hwy)) + geom_density(fill="red")
+
+# histograma con curva de densidad
+ggplot(mpg, aes(x=hwy)) + 
+    geom_histogram(aes(y=..density..),      
+                   binwidth=2,
+                   colour="black", fill="blue") +
+    geom_density(alpha=.2, fill="red")  #rellenado de la curva de densidad en rojo suave
+```
+
+
+También se pueden representar histogramas en los que se divida la variable respecto a varias categorías. Para ello vamos a seleccionar dos manufacturadores, audi y volkswagen
+```{r}
+mpg_subset <- mpg[mpg$manufacturer=="audi" | mpg$manufacturer=="volkswagen" , ]
+str(mpg_subset)
+```
+
+```{r}
+# histogramas superpuestos
+ggplot(mpg_subset, aes(x=hwy, fill=manufacturer)) +
+    geom_histogram(binwidth=2, alpha=.5, position="identity")
+
+# histogramas intercalados
+ggplot(mpg_subset, aes(x=hwy, fill=manufacturer)) +
+    geom_histogram(binwidth=2, position="dodge")
+
+# curvas de densidad
+ggplot(mpg_subset, aes(x=hwy, fill=manufacturer)) + geom_density()
+
+# curvas de densidad con rellenado transparente
+ggplot(mpg_subset, aes(x=hwy, fill=manufacturer)) + geom_density(alpha=.3)
+```
+Más histogramas y opciones
+```{r}
+
+
+
+#histogramas más sofisticados
+set.seed(6298)
+diamonds_small <- diamonds[sample(nrow(diamonds), 1000), ]
+ggplot(diamonds_small, aes(x = price)) + geom_histogram()
+ggplot(diamonds_small, aes(x = price)) + geom_histogram(binwidth = 1000)
+
+#polinomios de frecuencias con colores en función de un factor
+ggplot(diamonds_small, aes(price, ..density.., colour = cut)) + geom_freqpoly(binwidth = 1000)
+
+#más opciones, histogramas solapados con distintos colores en función de un factor
+hist_cut <- ggplot(diamonds_small, aes(x = price, fill = cut))
+hist_cut + geom_histogram(binwidth = 1000)
+
+#gráficos de densidad con diferentes factores marcando colores
+ggplot(diamonds_small, aes(price, fill = cut)) + geom_density(alpha = 0.2)
+```
+
+## Gráficos de barras
+
+Cargamos un dataset de propinas para observar su distribución
+
+```{r}
+# install.packages("reshape2")
+library(reshape2)
+data(tips)
+help(tips)
+head(tips)
+```
+
+```{r}
+# gráfico de barras básico de factura total respecto a hora del día
+# se consume más en el almuerzo que en la cena
+ggplot(data=tips, aes(x=time, y=total_bill)) +
+    geom_bar(stat="identity")
+
+# pintamos la anterior gráfica de barras según la categoría fumador
+ggplot(data=tips, aes(x=time, y=total_bill, fill=smoker)) +
+    geom_bar(stat="identity")
+
+```
+
+Se puede observar que el viernes es cuando cada mesa paga más en media.
+```{r}
+#cuenta de clientes por día
+ggplot(data=tips, aes(x=day)) +
+    geom_bar(stat="count") 
+
+#cuenta de media de  facturas por día
+ggplot(data=tips, aes(x=day, y=total_bill)) +
+    geom_bar(stat = "summary", fun.y = "mean") 
+```
+
+## Gráficos de factor con barras de error
+
+Son gráficos parecidos a los de barras pero con líneas que unen puntos. Cargamos un dataset de crecimiento de dientes en cerdos guineanos.
+
+```{r}
+data(ToothGrowth)
+help("ToothGrowth")
+head(ToothGrowth)
+tg <- ToothGrowth
+```
+Realizamos un sumario de las variables que nos permite realizar representaciones con márgenes de confianza:
+```{r}
+# install.packages("Rmisc")
+library(Rmisc)
+tgc <- summarySE(tg, measurevar="len", groupvars=c("supp","dose"))
+tgc
+```
+
+Hacemos gráficas de factor. Podemos observar la diferencia de aplicar al cerdo un supemento u otro. Las barras verticales son intervalos de confianza al 95% de los valores de longitud del diente según la cantidad de dosis aportada en cada suplemeneto.
+
+```{r}
+# factor plot con error bars
+ggplot(tgc, aes(x=dose, y=len, colour=supp)) + 
+    geom_errorbar(aes(ymin=len-se, ymax=len+se), width=.1) +
+    geom_line() +
+    geom_point()
+
+# observamos cómo quedaría esta gráfica según propinas por día 
+ggplot(tips, aes(x=day, y=tip, colour="red")) + 
+    geom_line() +
+    geom_point()
+```
+## Gráficos de caja ó *boxplot*
+
+```{r}
+p <- ggplot(diamonds, aes(cut, price))
+p + geom_boxplot()
+
+#propina en función de día
+#el domingo pagan más en media pero el sábado hay más gente optimista con propinas altas
+ggplot(tips, aes(day, tip)) +  geom_boxplot() + coord_flip()
+```
+
+

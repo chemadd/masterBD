@@ -1,0 +1,180 @@
+---
+title: "UD6 N02"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# Series temporales
+
+
+
+La estacionalidad de las series se puede interpretar de manera aditiva ? multiplicativa, esto es:
+
+- **Modelo aditivo:**
+$$ Y(t) = T(t) + S(t) + \epsilon(t)$$
+
+- **Modelo multiplicativo:**
+$$ Y(t) = T(t) \cdot S(t) \cdot \epsilon(t)$$
+
+En ambos modelos:
+
+- $Y(t)$ es la secuencia que representa a la serie num?rica.
+- $S(t)$ es  la componente estacional que representa las variaciones que se presentan con la frecuencia
+- $T(t)$ es  la componente de tendencia que representa la variaci?n evolutiva de la serie respecto al tiempo
+- $\epsilon (t)$ es la componente de error ? ruido blanco de la serie
+
+Veremos un ejemplo de una serie temporal mensual con frecuencia anual, cada 12 meses.
+
+## Cargamos los datos y los representamos
+
+```{r}
+data("AirPassengers")
+AP <- AirPassengers
+frequency(AP)
+plot(AP, ylab="Passengers (1000s)", type="o", pch =20)
+```
+Tomamos los datos hasta 1959 inclu?do como entrenamiento y los datos en 1960 como test.
+```{r}
+AP_train <- window(AP, end=c(1959,12))
+AP_test <- window(AP, start=1960)
+AP_train
+AP_test
+```
+
+## Interpretamos los datos
+
+Cuando la estacionalidad parece tener m?s variaci?n conforme la tendencia manifiesta su evoluci?n, se usan modelos multiplicativos. Si no es m?s adecuado usar modelos aditivos. En este caso usaremos un modelo multiplicativo
+
+## Descomponemos la serie
+
+Con la funci?n `decompose` se separa la serie de manera aditiva ? multiplicativa y se pueden observar los efectos:
+```{r}
+AP.decompM <- decompose(AP_train, type = "multiplicative")
+plot(AP.decompM)
+```
+
+Vemos las series con las componentes:
+```{r}
+AP.decompM$seasonal
+AP.decompM$trend
+AP.decompM$random
+```
+## Estacionareidad
+
+Tenemos un resultado de un teorema que nos dice:
+
+      Toda serie derivada la suficiente cantidad de veces es estacionaria
+      
+
+Observamos si la serie es estacionaria. Para ello hay contrastes de hip?tesis, en el paquete `forecast` hay una funci?n `ndiff` que nos dice el número de veces que hay que derivar para conseguir que sea estacionaria. Como la serie es multiplicativa, tomamos logaritmo antes de verificar su estacionareidad:
+
+```{r}
+# install.packages("forecast")
+library(forecast)
+ndiffs(log(AP_train))
+diff(AP_train)
+AP_train
+```
+Los resultados indican que la serie es estacionaria al derivarla una vez, pintamos la serie derivada:
+```{r}
+plot(diff(log(AP_train)), ylab="Passengers (1000s)", type="o", pch =20)
+```
+
+## Ajustamos un modelo
+
+Vamos a ajustar una predicci?n sobre 1961 usando una regresi?n lineal para la tendencia, y haciendo agregaci?n de los valores estacionales partiendo de un modelo multiplicativo.
+
+### Modelo lineal sobre la tendencia
+
+```{r}
+t <- seq(1, 144-12, 1)
+modelTrend <- lm(formula = AP.decompM$trend ~ t)
+summary(modelTrend)
+
+predT <- predict.lm(modelTrend, newdata = data.frame(t))
+
+plot(AP.decompM$trend[7:132] ~ t[7:132], ylab="T(t)", xlab="t",
+     type="p", pch=20, main = "Componente de tendencia: modelo lineal vs observado")
+lines(predT, col="red")
+```
+
+Creamos el dataframe de la predicci?n de 1961 e inclu?mos los valores de tendencia resultado de la regresi?n y los a?adimos a la columna de tendencia. Estos a?os corresponden a los pasos 145 a 156 de la secuencia desde el origen, el valor de la regresi?n se calcula como
+
+$$T(t) = 2.58064 t + 88.84686$$
+
+
+```{r}
+Data1960 <- data.frame("T" = 2.58064*seq(123, 134, 1) + 88.84686, S=rep(0,12), e=rep(0,12),
+                       row.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+Data1960
+```
+
+### Modelo sobre la componente estacional
+
+```{r}
+Data1960$S <- unique(AP.decompM$seasonal)
+Data1960
+```
+
+### Predicciones y error
+
+Las predicciones para ese a?o 1960 se realizan como
+
+$$Y(t) = T(t) \cdot S(t) $$
+
+Observamos el valor del error hasta 1960 y deber?a distribuirse entorno a 1 con formato de campana de Gauss (Normal(1, $\epsilon$))
+
+```{r}
+plot(density(AP.decompM$random[7:122]),
+             main="Error aproximaci?n")
+```
+La desviaci?n t?pica del error
+```{r}
+sd_error <- sd(AP.decompM$random[7:122])
+sd_error
+```
+Suponemos al hacer la predicci?n que el valor de error es 1
+
+```{r}
+Data1960$e <- 1
+Data1960
+```
+
+```{r}
+#Centro estimaci?n
+Data1960$R <- Data1960$T * Data1960$S * Data1960$e     
+#Extremo sup. 95% confianza
+Data1960$O <- Data1960$T * Data1960$S * (Data1960$e+1.95*sd_error)  
+#Extremo inf. 95% confianza
+Data1960$P <- Data1960$T * Data1960$S * (Data1960$e-1.95*sd_error)  
+Data1960$Real <- AP_test
+Data1960
+```
+Representamos el valor de predicci?n y el real de 1960
+```{r}
+xr = c(123,134)
+plot(Data1960$Real, xlim=xr, ylab = "Passengers (100s)", xlab = "Month" , lwd=10)
+lines(Data1960$Real, x=seq(123,134,1), lwd=10)
+lines(Data1960$R, x=seq(123,134,1), col="blue")
+lines(Data1960$O, x=seq(123,134,1), col="green")
+lines(Data1960$P, x=seq(123,134,1), col="red")
+# lines(Data1960$Real, x=seq(123,134,1), col="red", lwd=10)
+```
+**El MAPE es del 10.09 %**
+```{r}
+# install.packages("TSPred")
+library(TSPred)
+MAPE(Data1960$Real, Data1960$R)
+```
+? El error se distribuye como una normal?
+Vemos que se distribuye ligeramente sesgada a la derecha, esto significa que estamos haciendo predicciones que se quedan cortas de valor.
+```{r}
+error <- Data1960$Real / Data1960$R
+sd(error)
+plot(density(error),
+             main="Error aproximaci?n")
+```
+

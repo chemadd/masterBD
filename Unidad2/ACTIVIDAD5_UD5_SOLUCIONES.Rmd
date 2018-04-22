@@ -1,0 +1,123 @@
+---
+title: "ACTIVIDAD 5 UD 5 SOLUCIONES"
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document: default
+---
+
+## Entrenamos una regresión logística y realizamos la selección stepAIC comprobando el error en test
+
+Cargamos datos
+```{r}
+url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
+df <- read.csv(url, header = FALSE)
+write.csv(df, 'wisconsin_breast.csv')
+dim(df)
+head(df)
+str(df)
+```
+```{r}
+df$V2 <- as.numeric(df$V2) - 1
+df_train <- df[1:400, 1:32]
+df_test <- df[401:569, 1:32]
+
+X <- df[,3:32]
+dim(X)
+y <- df$V2
+unique(y)
+
+X_train <- X[1:400,]
+y_train <- y[1:400]
+X_test <- X[401:569,]
+y_test <- y[401:569]
+```
+Seleccionamos mediante AIC el mejor modelo de regresión logística
+
+```{r}
+fit1 <- glm(V2~., data=df_train, family=binomial)
+fit0 <- glm(V2~1, data=df_train, family=binomial)
+library(MASS)
+step <-stepAIC(fit0,direction="forward",scope=list(upper=fit1,lower=fit0))
+summary(step)
+```
+Comprobamos el error en en el conjunto test
+```{r}
+y_pred <- as.numeric(predict(step, X_test, type="response")>.5)
+
+# install.packages(c("e1071", "caret", "e1071")
+library(caret)
+library(ggplot2)
+library(lattice)
+library(e1071)
+confusionMatrix(y_test, y_pred, mode="everything")
+```
+
+## Regresión logística con regularización Ridge
+
+```{r}
+X_train <- data.matrix(X_train)
+X_test <- data.matrix(X_test)
+# install.packages("glmnet")
+library(glmnet)
+set.seed(999)
+cv.ridge <- cv.glmnet(X_train, y_train, family='binomial', alpha=0, parallel=TRUE, standardize=TRUE, type.measure='auc')
+# Resultados
+plot(cv.ridge)
+#este es el mejor valor de lambda
+cv.ridge$lambda.min
+#este es el valor del error que se estima para ese valor lambda mínimo dado en MSE
+max(cv.ridge$cvm)
+```
+Vemos los coeficientes
+```{r}
+coef(cv.ridge, s=cv.ridge$lambda.min)
+```
+Damos métricas en el test
+```{r}
+y_pred <- as.numeric(predict.glmnet(cv.ridge$glmnet.fit, newx=X_test, s=cv.ridge$lambda.min)>.5)
+#install.packages(c("e1071", "caret", "e1071")
+library(caret)
+library(ggplot2)
+library(lattice)
+library(e1071)
+confusionMatrix(y_test, y_pred, mode="everything")
+```
+Mejora sensiblemente la clasificación de la selección por AIC
+
+## Regresión logística con regularización Lasso
+
+```{r}
+# install.packages("glmnet")
+library(glmnet)
+set.seed(999)
+cv.lasso <- cv.glmnet(X_train, y_train, family='binomial', alpha=1, parallel=TRUE, standardize=TRUE, type.measure='auc')
+# Resultados
+plot(cv.lasso)
+#este es el mejor valor de lambda
+cv.lasso$lambda.min
+#este es el valor del error que se estima para ese valor lambda mínimo dado en MSE
+max(cv.lasso$cvm)
+```
+
+Vemos los coeficientes
+
+```{r}
+coef(cv.lasso, s=cv.lasso$lambda.min)
+```
+Hace una selección bastante exhaustiva de los mismos
+
+```{r}
+y_pred <- as.numeric(predict.glmnet(cv.lasso$glmnet.fit, newx=X_test, s=cv.lasso$lambda.min)>.5)
+#install.packages(c("e1071", "caret", "e1071")
+library(caret)
+library(ggplot2)
+library(lattice)
+library(e1071)
+confusionMatrix(y_test, y_pred, mode="everything")
+```
+El recall de Lasso empeora.
+
+Seleccionaríamos el modelo Ridge por ser el mejor de los tres.
+
+

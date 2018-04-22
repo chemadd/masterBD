@@ -1,0 +1,167 @@
+---
+title: "UD4 N02"
+output:
+  html_notebook: default
+  html_document: default
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# Modelos restringidos en regresión lineal
+
+
+## Ridge en regresión lineal
+
+Cargamos los datos
+```{r}
+library(MASS)
+data(Boston)
+colnames(Boston)
+str(Boston)
+# X <- as.matrix(subset(Boston, select= - medv))
+# y <- as.matrix(Boston$medv)
+X <- data.matrix(subset(Boston, select= - medv))
+y <- Boston$medv
+
+str(X)
+```
+Usamos la librería `glmnet`. Ajustamos un modelo de Ridge de regresión lineal, para ello en `Alpha` debemos fijar el valor `0`y  en family `'gaussian'`  y `type.measure='mse'` 
+
+```{r}
+# install.packages("glmnet")
+library(glmnet)
+set.seed(999)
+cv.ridge <- cv.glmnet(X, y, family='gaussian', alpha=0, parallel=TRUE, standardize=TRUE, type.measure='mse')
+# Resultados
+plot(cv.ridge)
+#este es el mejor valor de lambda
+cv.ridge$lambda.min
+#este es el valor del error que se estima para ese valor lambda mínimo dado en MSE
+min(cv.ridge$cvm)
+var(y)
+```
+
+Esto nos dice los coeficientes para el valor de $\lambda$ óptimo. Observar que bastantes coeficientes son casi nulos:
+```{r}
+coef(cv.ridge, s=cv.ridge$lambda.min)
+```
+Realizamos una predicción sobre de las primeras dos filas de la matriz
+```{r}
+predict.glmnet(cv.ridge$glmnet.fit, newx=X[1:2,], s=cv.ridge$lambda.min)
+```
+
+
+## Lasso en regresión lineal
+
+Para ejecutar un modelo hueco de Lasso sólo tenemos que cambiar `Alpha=0`en la función `glmnet` y aplicarla igual que en el caso Ridge
+
+
+```{r}
+cv.lasso <- cv.glmnet(X, y, family='gaussian', alpha=1, parallel=TRUE, standardize=TRUE, type.measure='mse')
+# Resultados
+plot(cv.lasso)
+#este es el mejor valor de lambda
+cv.lasso$lambda.min
+#este es el valor del error que se estima para ese valor lambda mínimo dado en MSE
+min(cv.lasso$cvm)
+```
+Observamos que Lasso arroja resultados de error ligeramente inferiores. Los coeficientes del modelo hueco (con los coeficientes no relevantes establecidos como nulos) son:
+```{r}
+coef(cv.lasso, s=cv.lasso$lambda.min)
+```
+Observamos que "indus" y "age" los ha establecido como nulos directamente.
+
+Realizamos una predicción sobre de las primeras dos filas de la matriz
+```{r}
+predict.glmnet(cv.lasso$glmnet.fit, newx=X[1:2,], s=cv.lasso$lambda.min)
+```
+
+
+# Modelos restringidos en regresión logística
+
+Cargamos datos
+```{r}
+# install.packages("ElemStatLearn")
+library(ElemStatLearn)
+data("SAheart")
+help(SAheart)
+head(SAheart)
+#la variable categórica a relacionar es chd
+str(SAheart)
+```
+Creamos las matrizes de predictores y variable objetivo
+```{r}
+X <- data.matrix(subset(SAheart  , select= - chd))
+y <- as.double(as.matrix(SAheart$chd  ))
+str(X)
+```
+Vamos a dividir en dos conjuntos, uno de entrenamiento y otro de test, para evlauar la capacidad predictiva de cada modelo:
+```{r}
+dim(X)
+X_train <- X[1:362,]
+y_train <- y[1:362]
+X_test <- X[363:462,]
+y_test <- y[363:462]
+```
+
+## Ridge en regresión logística
+Se programa igual que el caso lineal, cambiamos a `family='binomial'` y `type.measure='auc'`
+```{r}
+# install.packages("glmnet")
+library(glmnet)
+set.seed(999)
+cv.ridge <- cv.glmnet(X_train, y_train, family='binomial', alpha=0, parallel=TRUE, standardize=TRUE, type.measure='auc')
+# Resultados
+plot(cv.ridge)
+#este es el mejor valor de lambda
+cv.ridge$lambda.min
+#este es el valor del error que se estima para ese valor lambda mínimo dado en MSE
+max(cv.ridge$cvm)
+```
+Vemos los coeficientes
+
+```{r}
+coef(cv.ridge, s=cv.ridge$lambda.min)
+```
+
+Damos métricas en el test
+```{r}
+y_pred <- as.numeric(predict.glmnet(cv.ridge$glmnet.fit, newx=X_test, s=cv.ridge$lambda.min)>.5)
+#install.packages(c("e1071", "caret", "e1071"))
+library(caret)
+library(ggplot2)
+library(lattice)
+library(e1071)
+confusionMatrix(y_test, y_pred, mode="everything")
+```
+
+
+## Lasso en regresión logística
+
+```{r}
+# install.packages("glmnet")
+library(glmnet)
+set.seed(999)
+cv.lasso <- cv.glmnet(X_train, y_train, family='binomial', alpha=1, parallel=TRUE, standardize=TRUE, type.measure='auc')
+# Resultados
+plot(cv.lasso)
+#este es el mejor valor de lambda
+cv.lasso$lambda.min
+#este es el valor del error que se estima para ese valor lambda mínimo dado en MSE
+max(cv.lasso$cvm)
+```
+Vemos los coeficientes
+
+```{r}
+coef(cv.lasso, s=cv.lasso$lambda.min)
+```
+
+```{r}
+y_pred <- as.numeric(predict.glmnet(cv.lasso$glmnet.fit, newx=X_test, s=cv.lasso$lambda.min)>.5)
+#install.packages(c("e1071", "caret", "e1071")
+library(caret)
+library(ggplot2)
+library(lattice)
+library(e1071)
+confusionMatrix(y_test, y_pred, mode="everything")
+```

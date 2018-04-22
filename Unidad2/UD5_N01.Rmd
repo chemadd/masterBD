@@ -1,0 +1,108 @@
+---
+title: "UD5 N01"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_notebook: default
+  html_document: default
+---
+
+## Regresión logística
+
+Vamos a ver cómo se ajustan los modelos de regresión logística y cómo se interpretan las salidas.
+
+Cargamos datos de enfermedades cardiovasculares en Sudáfrica. La columna "chd" indica si la persona padece con un 1 y con un 0 si no la padece.
+
+```{r}
+# install.packages("ElemStatLearn")
+library(ElemStatLearn)
+data("SAheart")
+help(SAheart)
+head(SAheart)
+#la variable categórica a relacionar es chd
+str(SAheart)
+```
+La función que realiza la regresión logística es `glm`, creamos un modelo de regresión logística sobre la variable "tobacco"
+
+```{r}
+help("glm")
+mod <- glm(chd~tobacco, data=SAheart, family=binomial)
+mod$coefficients
+summary(mod)
+```
+Pintamos la variable "chd" frente a "tobacco" para observar la propensión de estar enfermo respecto al consumo de tabaco. Representamos la sigmoide resultante respecto a la variable "tobacco"
+```{r}
+plot(chd ~ tobacco, data=SAheart)
+lines(sort(SAheart$tobacco), mod$fitted[order(SAheart$tobacco)], type="o", col="red")
+```
+Se observa que si bien mayor cantidad de tabaco incide en mayor probabilidad de tener chd, las clases no están realmente bien separadas por la variable "tobacco"
+
+Creamos un modelo sobre todas las variables, observamos que las variables más relevantes son "famhistPresent", "tobacco", "ldl", "typea" y "age"
+```{r}
+mod <- glm(chd~., data=SAheart, family=binomial)
+mod$coefficients
+summary(mod)
+#calcula las predicciones sobre todos las instancias
+y_pred <- predict(mod, subset(SAheart,select = -chd ), type="response")
+head(y_pred)
+```
+La interpretación de los coeficientes: mientras mayor sean más probabilidad aportan de que tenga chd y mientras menor valor tengan
+menor probabilidad de que tengan chd
+```{r}
+summary(mod)
+plot(mod,which=1)
+```
+
+
+Vemos aquí la explicación con detalle: https://freakonometrics.hypotheses.org/8210 
+
+
+Buscamos el mejor modelo
+```{r}
+fit1 <- glm(chd~., data=SAheart, family=binomial)
+fit0 <- glm(chd~1, data=SAheart, family=binomial)
+library(MASS)
+step <-stepAIC(fit0,direction="both",scope=list(upper=fit1,lower=fit0))
+mod <- glm(chd ~ age + famhist + tobacco + typea + ldl, data=SAheart, family=binomial)
+mod$coefficients
+step$residuals
+plot(predict(step),residuals(step))
+coefficients(step)
+# predecimos 1 si la probabilidad es mayor que 0.5 y 0 si es menor que 0.5 y comparamos
+y_pred <- predict(step)>.5
+head(y_pred)
+head(SAheart$chd)
+```
+
+
+La matriz de confusión y las métricas de erorr  se pueden calcular. Para obtener todas las que se han dado incluir la opción `mode="everything"` . Además se obtiene intervalo de confianza para el accuracy
+```{r}
+y_pred <- as.numeric(predict(mod, subset(SAheart,select = -chd ), type="response")>.5)
+y <- as.numeric(SAheart$chd)
+# install.packages(c("e1071", "caret", "e1071")
+library(caret)
+library(ggplot2)
+library(lattice)
+library(e1071)
+confusionMatrix(y, y_pred, mode="everything")
+```
+
+Observamos cómo influyen los factores en la enfermedad a través de los coeficientes y los *log odds*
+```{r}
+coef(mod)
+exp(coef(mod))
+```
+
+Conclusiones:
+
+- Incrementar en una unidad el tabaco tomado aumenta un 8% la probabilidad de tener chd. 
+- El factor que más influye es la presencia familiar del padecimiento "famhistPresent". Hace que la probabilidad de tenerla sea 2.47 veces la de una persona que no tiene historial familiar.
+- Por cada año que pasa se incrementa un 5% la probabilidad de padecer chd
+
+Obtenemos un intervalo de confianza para los valores de los coeficientes:
+```{r}
+exp(confint(mod))
+```
+
+
+

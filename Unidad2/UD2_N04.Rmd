@@ -1,0 +1,171 @@
+---
+title: "UD2 N04"
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document: default
+---
+
+# Análisis exploratorio de datos climáticos
+
+Realizamos un estudio gráfico de la evolución de la temperatura global desde 1850.
+Queremos saber:
+
+- Si ha habido un aumento significativo de la misma.
+- Si se producen más anomalías que antes térmicamente.
+- Sacar ideas y descriptores a partir de la información proporcionada.
+
+Los datos son de las temperaturas globales y están descritos como:
+
+Global Land and Ocean-and-Land Temperatures (GlobalTemperatures.csv):
+
+- Date: starts in 1750 for average land temperature and 1850 for max and min land temperatures and global ocean and land temperatures
+- LandAverageTemperature: global average land temperature in celsius
+- LandAverageTemperatureUncertainty: the 95% confidence interval around the average
+- LandMaxTemperature: global average maximum land temperature in celsius
+- LandMaxTemperatureUncertainty: the 95% confidence interval around the maximum land temperature
+- LandMinTemperature: global average minimum land temperature in celsius
+- LandMinTemperatureUncertainty: the 95% confidence interval around the minimum land temperature
+- LandAndOceanAverageTemperature: global average land and ocean temperature in celsius
+- LandAndOceanAverageTemperatureUncertainty: the 95% confidence interval around the global average land and ocean temperature
+
+
+Al haber muchos datos que se empiezan a recoger a partir de 1850, la exploración se hará desde esa fecha.
+
+```{r}
+df <- read.csv("GlobalTemperatures.csv")
+head(df)
+str(df)
+```
+
+
+Procesamos los datos seleccionando las fechas desde 1850, que no tienen valores faltantes.
+
+```{r}
+
+
+# eliminamos los valores faltantes
+df <- na.omit(df)
+
+# damos formato de fecha a la columna dt (Date)
+df$dt <- as.Date(df$dt,"%Y-%m-%d")
+
+# creamos una columna con información de mes y otra con información de año 
+df$Month<-as.numeric(format(df$dt,"%m"))
+df$Month.String<-format(df$dt,"%B")
+df$Year<-as.numeric(format(df$dt,"%Y"))
+
+head(df, 20)
+str(df)
+```
+
+Representamos las temperaturas medias por mes desde 1850. Se puede observar claramente que si bien la temperatura de la tierra se mantiene en una subida suave, la de la tierra y océano tiene una subida más pronunciada en el tiempo.
+
+```{r}
+library(ggplot2)
+library(dplyr)
+#tierra
+ggplot(df,aes(x=dt,y=LandAverageTemperature,colour=reorder(Month.String,-LandAverageTemperature,mean)))+
+  geom_point()+
+  geom_smooth(method="loess")+
+  labs(title="Temperatura media de la tierra por mes",
+       x="Año",
+       y="Temperatura media de la tierra",
+       colour="Mes")
+
+#tierra y océano
+ggplot(df,aes(x=dt,y=LandAndOceanAverageTemperature,colour=reorder(Month.String,-LandAndOceanAverageTemperature,mean)))+
+  geom_point()+
+  geom_smooth(method="loess")+
+  labs(title="Temperatura media de la tierra y océano por mes",
+       x="Año",
+       y="Temperatura media de la tierra y océano",
+       colour="Mes")
+```
+
+Representamos la temperatura máxima menos la mínima en este intervalo de tiempo para la tierra. No se aprecia una diferencia ó evolución en la diferencia de temperatura máxima y mínima creciente por año. Si lo hacemos por cuatrimestre tampoco se observa una evolución en ninguna de las estaciones. 
+
+Observamos que tanto la máxima como la mínima temperatura por año han aumentado casi 3º C desde 1850. 
+
+```{r}
+df$MaxMinLandDifference <- df$LandMaxTemperature - df$LandMinTemperature
+df$Quarter <- quarters(df$dt)
+
+#gráfica de las máximas por año
+df %>% 
+  filter(Year>1850) %>%
+  group_by(Year) %>% 
+  summarise(MaxTemp = mean(LandMaxTemperature)) -> MaxByYear
+
+df %>% 
+  filter(Year>1850) %>%
+  group_by(Year) %>% 
+  summarise(MinTemp = mean(LandMinTemperature)) -> MinByYear
+
+qplot(Year, MaxTemp, data=MaxByYear, main="Máxima en tierra por año desde 1850",geom=c("point","smooth"))+ aes(colour = MaxTemp) + scale_color_gradient(low="blue", high="red")
+
+qplot(Year, MinTemp, data=MinByYear, main="Mínima  en tierra por año desde 1850",geom=c("point","smooth"))+ aes(colour = MinTemp) + scale_color_gradient(low="blue", high="red")
+
+
+
+#gráfica por año
+ggplot(df,aes(x=dt,y=MaxMinLandDifference))+
+  geom_point()+
+  geom_smooth(method="loess")+
+  labs(title="Diferencia entre temperatura máxima y mínima en tierra",
+       x="Año",
+       y="Difernecia entre máxima y mínima en tierra")
+
+#gráfica con la evolución cuatrimestral
+ggplot(df,aes(x=dt,y=MaxMinLandDifference,colour=reorder(Quarter,-MaxMinLandDifference,mean)))+
+  geom_point()+
+  geom_smooth(method="loess")+
+  labs(title="Diferencia entre temperatura máxima y mínima en tierra por cuatrimestre",
+       x="Año",
+       y="Diferencia entre máxima y mínima en tierra",
+       colour="Cuatrimestre")
+```
+Evolución de la incertidumbre sobre la temperatura. Se ve que las medidas han evolucionado mucho.
+
+```{r}
+ggplot(df,aes(x=dt,y=LandAndOceanAverageTemperatureUncertainty))+
+  geom_point(shape=1)+
+  geom_smooth(method="loess")+
+  labs(title="Media de la incertidumbre en temperatura de tierra y océano a lo largo del tiempo",
+       x="Año",
+       y="Incertidumbre de temperatura media")
+
+```
+
+Vemos la distribución de la temperatura de tierra y océano a lo largo del año. Casi todos los meses tienen las mismas anomalías ó valores atípicos hacia arriba y hacia abajo.
+
+```{r}
+df %>% group_by(Month) %>% 
+  summarise(AverageTemp = mean(LandAndOceanAverageTemperature)) -> MonthTemp
+
+MonthTemp
+
+df$MonthFactor <- as.factor(df$Month)
+
+qplot(x =  MonthFactor, y = LandAndOceanAverageTemperature, data = df) +
+  ggtitle("Gráfico de caja de la temperatura media por mes")+geom_boxplot(fill="blue1")
+
+```
+
+Temperaturas medias según mes en años señalados
+
+```{r}
+
+df_sel <- subset(df,Year %in% c(1850,1900,1950,1975,1995,2004))
+head(df_sel)
+ggplot(df_sel, aes(x=(Month), y=LandAndOceanAverageTemperature, color=as.factor(Year))) +
+  geom_smooth(se=FALSE,fill=NA, size=2) +
+  theme_light(base_size=14) +
+  xlab("Mes")+
+  ylab("LandAndOceanAverageTemperature") +
+  scale_color_discrete("") +
+  ggtitle("Temperatura media en tierra y océano por mes en años seleccionados") 
+```
+
+
+

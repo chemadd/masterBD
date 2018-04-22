@@ -1,0 +1,71 @@
+---
+title: "ACTIVIDAD 6 UD 6"
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document: default
+---
+
+## Actividad GLM
+
+
+Carga el dataset "absentismo.csv"
+```{r}
+df <- read.csv("ACTIVIDAD_6_UD6_absentismo.csv")
+head(df)
+str(df)
+summary(df)
+```
+# ¿Qué GLM es adecuado para hacer regresión de la variable objetivo "ausencias" ?
+--> De Poisson o bien Binomial Negativa
+```{r}
+# - Convierte las variables género en factores. El tipo de escuela en urbana (1) y rural (2) también y programas en A,B,C,D respectivamente. Monta después una `model.matrix` sobre el dataset.
+df_convert <- df
+df_convert$genero <- factor(df_convert$genero, levels=1:2, labels=c('fem','masc'))
+df_convert$tipoescuela <- factor(df_convert$tipoescuela, labels = c('urbana','rural'))
+df_convert$programa <- factor(df_convert$programa, labels = c('A','B','C','D'))
+
+summary(df_convert)
+str(df_convert)
+head(df_convert,30)
+
+ModMat <- model.matrix(~genero+tipoescuela+programa, data=df_convert, contrasts=list(genero="contr.helmert",tipoescuela="contr.helmert",programa="contr.helmert"))
+crossprod(ModMat)
+```
+
+
+- Calcula la media de ausencias en función de género y en función de tipo escuela, así también como el tipo de programa.
+- ¿ Se pueden considerar que la media de ausencias en la urbana y la rural iguales? ¿Se puede considerar que las medias en distintos programas son iguales?
+```{r}
+tapply(df_convert$ausencias,df_convert$genero,mean)
+tapply(df_convert$ausencias,df_convert$tipoescuela,mean)
+tapply(df_convert$ausencias,df_convert$programa,mean)
+# Graficamos para tener una idea de las distintas medias
+library(ggplot2)
+qplot(genero,ausencias,data=df_convert,geom='boxplot')
+qplot(tipoescuela,ausencias,data=df_convert,geom='boxplot')
+qplot(programa,ausencias,data=df_convert,geom='boxplot')
+# Realizamos el contraste ANOVA
+oneway.test(df_convert$ausencias ~ df_convert$genero)
+# --> Las diferencias entre medias son significativas: p-valor <= 0.05
+oneway.test(df_convert$ausencias ~ df_convert$tipoescuela)
+# --> Las diferencias entre medias son significativas: p-valor <= 0.05
+oneway.test(df_convert$ausencias ~ df_convert$programa)
+# --> Las diferencias entre medias NO SON significativas: p-valor > 0.05. Por tanto las medias en los distintos programas son iguales
+
+```
+
+- Aplica un glm binomial negativo para analizar la relación entre ausencias y las variables
+- Seleccionar el mejor modelo con stepAIC
+```{r}
+library(MASS)
+mod_BinNeg_Max <- glm.nb(ausencias ~ ., data= df_convert)
+mod_BinNeg_Min <- glm.nb(ausencias ~ 1, data= df_convert)
+step <- stepAIC(mod_BinNeg_Min, direction = "forward", scope = list(upper=mod_BinNeg_Max,lower=mod_BinNeg_Min))
+summary(step)
+step$coefficients
+confint(step)
+# Puesto que el modelo binomial negativo es de la familia exponencial:
+exp(cbind(coef(step),confint(step)))
+exp(coef(step))
+```

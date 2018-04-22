@@ -1,0 +1,138 @@
+---
+title: "UD6 N03"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# Modelos SARIMA
+
+Aplicamos modelos SARIMA sobre la serie temporal de pasajeros de avión y comparamos con los resultados previos.
+
+Se entrenan modelos que son **SARIMA (Autorregresivos Integrados de Medias Móviles con Estacionalidad)**
+
+Estos tienen 7 parámetros a definir. Los términos en minúscula tienen que ver con la evolución inmediata de la serie y los términos en mayúscula con la evolución a través de la frecuencia
+$$(p,d,q) \times (P,D,Q) [f]$$
+El parámetro `f` es la frecuencia de la serie.
+
+El resto de parámetros están referidos a:
+
+- `p` lags de autoregresión inmediata
+- `d` número de derivadas inmediatas 
+- `q` lags de medias móviles inmediatas
+- `P` lags de autoregresión estacional (cada `f` unidades)
+- `D` número de derivadas estacionales (cada `f` unidades)
+- `Q` lags de medias móviles estacionales (cada `f` unidades)
+
+Hay que establecer primero las derivadas `d` y `D` de modo que tras derivarla inmediata y estacionalmente la serie sea estacionaria.
+
+## Cargamos datos
+```{r}
+data("AirPassengers")
+AP <- AirPassengers
+AP_train <- window(AP, end=c(1959,12))
+AP_test <- window(AP, start=1960)
+
+```
+
+Primero averiguamos el número de derivadas inmediatas necesarias:
+```{r}
+library(forecast)
+plot(AP_train)
+#nos dice que necesitamos 1 ndiffs
+ndiffs(AP_train) 
+#en los autocorrelogramas de la variable plana vemos que es necesario derivar
+acf(AP_train,lag.max=48)
+pacf(AP_train,lag.max=48)
+tsdisplay(AP_train)
+ndiffs(AP_train)
+```
+Derivamos y vemos que tras realizar una derivada inmediata hay picos cada 12 unidades. El test ADF nos dice que es estacionaria, sin embargo con esos picos estacionales vamos a derivar por frecuencia
+```{r}
+library(tseries)
+Air_ts_d1=diff(AP_train, lag=1,differences=1)
+plot(Air_ts_d1)
+acf(Air_ts_d1,lag.max=48)
+pacf(Air_ts_d1,lag.max=48)
+tsdisplay(Air_ts_d1)
+adf.test(Air_ts_d1)
+```
+
+Derivamos cada 12 meses la serie derivada por unidades. Observamos que en los autocorrelogramas ya no hay influencia del efecto que se observaba cada 12 meses.
+```{r}
+Air_ts_d1_d12=diff(diff(AP_train, lag=1,differences=1),lag=12,differences=1)
+plot(Air_ts_d1_d12)
+acf(Air_ts_d1_d12,lag.max=48)
+pacf(Air_ts_d1_d12,lag.max=48)
+tsdisplay(Air_ts_d1_d12)
+adf.test(Air_ts_d1_d12)
+```
+
+Según hemos visto `d=1`  y `D=1` con `f=12` . Probamos un primer modelo con p,q,P y Q valiendo 1
+
+Este proceso se puede hacer alternativamente haciendo en secuencia:
+```{r}
+library(forecast)
+frequency(AP_train)
+ndiffs(AP_train)
+#como el resultado de ndiffs es 1, hacemos nsdiffs sobre la derivada inmediata 1
+nsdiffs(diff(AP_train))
+```
+
+Entrenamos un modelo:
+```{r}
+Air_model <- Arima(AP_train,order=c(1,1,1),  seasonal=list(order = c(1, 1, 1)))
+summary(Air_model)
+```
+Vemos que el MAPE de entrenamiento es bastante bajo.
+
+Pintamos el modelo y vemos si los residuos son un **ruido blanco**, esto es, si no contienen más patrones aprovechables. Además hacemos un plot de forecast de 24 períodos y obtenemos el valor de la serie predicha para 12 meses para calcular el mape respecto a la real.
+```{r}
+library(forecast)
+plot(forecast(Air_model,h=24))
+tsdisplay(residuals(Air_model))
+#la hipótesis nula es incorrelación de los residuos, que es lo que deseamos
+Box.test(residuals(Air_model),type="Ljung",lag=20)
+#calculamos la predicción a 12 meses (1960), esto calcula intervalso de confianza
+pred <- forecast(Air_model,h=12)
+pred$mean
+pred
+#damos el MAPE
+library(TSPred)
+MAPE(AP_test, pred$mean)
+```
+Sale un MAPE en la predicción del **3.64%**, es un valor mucho mejor que el obtenido en el otro notebook.
+
+### Auto-arima
+
+Se puede hacer una selección de la p,q,P y Q usando la función auto arima, que prueba modelos hasta un orden y luego selecciona aquél con AIC más bajo:
+
+```{r}
+library(forecast)
+Auto_Air_model <- auto.arima(AP_train,trace=TRUE, stepwise = FALSE, parallel=TRUE, num.cores = 6 )
+plot(forecast(Auto_Air_model,h=24))
+summary(Auto_Air_model)
+tsdisplay(residuals(Auto_Air_model))
+```
+Auto arima ha seleccionado como mejor modelo `ARIMA(0,1,3)(0,1,0)[12]`  
+
+
+Damos todos los valores calculados para el modelo seleccionado para el AUTOARIMA
+
+```{r}
+library(forecast)
+plot(forecast(Auto_Air_model,h=24))
+tsdisplay(residuals(Auto_Air_model))
+#la hipótesis nula es incorrelación de los residuos, que es lo que deseamos
+Box.test(residuals(Auto_Air_model),type="Ljung",lag=20)
+#calculamos la predicción a 12 meses (1960), esto calcula intervalso de confianza
+pred <- forecast(Auto_Air_model,h=12)
+pred$mean
+pred
+#damos el MAPE
+library(TSPred)
+MAPE(AP_test, pred$mean)
+```
+Vemos que el modelo seleccionado por nosotros tiene mejor MAPE que el autoarima, aunque tenía peor AIC. Optimizar un criterio no tiene por qué dar como resultado el mejor modelo en otros criterios siempre.

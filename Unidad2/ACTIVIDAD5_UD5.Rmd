@@ -1,0 +1,63 @@
+---
+title: "ACTIVIDAD 5 - UD5"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_notebook: default
+  html_document: default
+---
+
+
+
+## Problema de clasificación
+
+Carga el dataset de cáncer de mama en Wisconsin en UCI: . Divídelo en train - 400 filas y test - fila 401 en adelante. 
+
+**Nota: Si la url no está disponible, cargar el archivo `wisconsin_breast.csv`**
+```{r}
+url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
+# df <- read.csv(url, header = FALSE)
+# write.csv(df, 'wisconsin_breast.csv')
+df <- read.csv('ACTIVIDAD_5_UD5_wisconsin_breast.csv', header = FALSE)
+dim(df)
+head(df)
+str(df)
+```
+Establecemos la variable objetivo y la matriz de diseño, así como el train y test set
+```{r}
+X <- df[,3:32]
+dim(X)
+y <- as.numeric(df$V2) -1
+unique(y)
+# y[y=='M'] <- 1
+# y[y=='B'] <- 0
+head(y,20)
+head(df$V2, 20)
+
+X_train <- X[1:400,]
+y_train <- y[1:400]
+X_test <- X[401:569,]
+y_test <- y[401:569]
+```
+Haz una regresión logística haciendo  selección de modelo según AIC y dando la tabla de confusión y métricas en el test:
+
+```{r}
+df_train <- df[1:400, 1:32]
+# - ¿ Qué variables son más influyentes para tener cáncer de mama?
+ModLog <- glm(V2 ~., data = df_train, family = binomial)
+fit1   <- glm(V2~., data=df_train, family=binomial)
+fit0 <- glm(V2~1, data=df_train, family=binomial)
+# summary(fit0)
+# NO CONVERGE!!
+fit0 <- glm(V2~1, data=df_train, family=binomial)
+library(MASS)
+step <-stepAIC(fit0,direction="forward",scope=list(upper=fit1,lower=fit0))
+# - Selecciona el modelo usando StepAIC y haz la predicción sobre el test set dando la matriz de confusión.
+```
+
+Aplica la regresión de Ridge y de Lasso, da las matrices de confusión y las métricas ¿con cuál de las tres opciones obtienes mejores resultados?
+
+Se entienden como mejores resultados en este caso el mejor **Recall** al no querer enviar pacientes enfermos a casa.
+
+
+

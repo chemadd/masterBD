@@ -1,0 +1,73 @@
+---
+title: "ACTIVIDAD 6 UD 6 SOLUCIONES"
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document: default
+---
+
+## Actividad GLM
+
+Dado que la variable ausencias es un entero no negativo, debemos usar  una binomial negativa.
+```{r}
+df <- read.csv("absentismo.csv")
+head(df)
+str(df)
+summary(df)
+```
+
+Transformamos en factores
+```{r}
+attach(df)
+df$genero <- factor(genero, levels=1:2,labels = c("fem","masc"))
+df$tipoescuela <- factor(tipoescuela,levels = 1:2, labels = c("urbana","rural"))
+df$programa <- factor(programa, levels=0:3,labels = c("A","B","C","D"))
+```
+
+
+Vemos la nueva matriz
+```{r}
+head(df,30)
+tail(df)
+str(df)
+summary(df)
+```
+
+
+Aplicamos a ausencias la media según categorías para observar si difieren los valores y hacemos ANOVAS
+```{r}
+tapply(df$ausencias,df$genero,mean)
+tapply(df$ausencias,df$tipoescuela,mean)
+tapply(df$ausencias,df$programa,mean)
+```
+
+```{r}
+oneway.test(df$ausencias ~ df$genero)
+oneway.test(df$ausencias ~ df$tipoescuela)
+oneway.test(df$ausencias ~ df$programa)
+```
+Se pueden considerar distintas según el tipo de escuela ó género pero no según el programa las ausencias.
+
+Entrenamos un glm binomial negativo
+```{r}
+library(MASS)
+mod <- model <- glm.nb(ausencias~., data = df)
+summary(mod)
+```
+
+
+Seleccionamos usando AIC el mejor conjunto de atributos:
+```{r}
+fit1 <- glm.nb(ausencias~., data=df)
+fit0 <- glm.nb(ausencias~1, data=df)
+library(MASS)
+step <-stepAIC(fit0,direction="forward",scope=list(upper=fit1,lower=fit0))
+step$coefficients
+```
+Damos el sumario y los intervalos de confianza de los coeficientes
+```{r}
+summary(step)
+exp(cbind(coef(step),confint(step)))
+```
+
+
