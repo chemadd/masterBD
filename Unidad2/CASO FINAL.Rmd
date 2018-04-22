@@ -77,7 +77,7 @@ Tomaremos el dataset de aprobación de crédito bancario en https://archive.ics.
 ## 1. Carga los datos. 
 Realiza una inspección por variables de la distribución de aprobación de crédito en función de cada atributo visualmente. Realiza las observaciones pertinentes. ¿ Qué variables son mejores para separar los datos?
 ```{r}
-CreApp <- read.csv('https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data',header= F,sep = ',')
+CreApp <- read.csv('https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data',header= F,sep = ',', na.strings = "?")
 write.csv(CreApp, 'CreditApproval.csv')
 # Revision de datos
 colnames(CreApp) <- c('A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A11','A12','A13','A14','A15','CreditApproval')
@@ -110,15 +110,23 @@ ggplot(CreApp, aes(as.numeric(CreApp$A14),fill=CreditApproval))+geom_histogram(b
 ggplot(CreApp, aes(A15, fill=CreditApproval))+geom_histogram(binwidth=2000)
 # Se observa que los creditos de mayor cantidad de A15 tienen mayor probabilidad de concederse, relacionados seguramente con las variables A9 o A10
 ```
-# Preparar el dataset
+# 2. Preparar el dataset
 2. Prepara el dataset convenientemente e imputa los valores faltantes usando la librería `missForest`
 ```{r}
 # install.packages("missForest")
 library(missForest)
+CreApp_New <- CreApp
+CreApp_New <- missForest(CreApp)
+summary(CreApp_New)
+summary(CreApp_New$ximp)
+```
+# 3. Dividir dataset en train y test
+3. Divide el dataset tomando las primeras 590 instancias como train y las últimas 100 como test.
+
+```{r}
 
 ```
 
-3. Divide el dataset tomando las primeras 590 instancias como train y las últimas 100 como test.
 4. Entrena un modelo de regresión logística con regularización Ridge y Lasso en train seleccionando el que mejor **AUC** tenga. Da las métricas en test.
 5. Aporta los *log odds* de las variables predictoras sobre la variable objetivo.
 6. Si por cada verdadero positivo ganamos 100e y por cada falso positivo perdemos 20e. ¿ Qué rentabilidad aporta aplicar este modelo?
