@@ -124,10 +124,17 @@ summary(CreApp_New$ximp)
 3. Divide el dataset tomando las primeras 590 instancias como train y las últimas 100 como test.
 
 ```{r}
+CreApp_New_train <- CreApp_New$ximp [1:590, 1:16]
+CreApp_New_test <- CreApp_New$ximp [591:690, 1:16]
+summary(CreApp_New_train)
+summary(CreApp_New_test)
+```
+# Modelo de regresion logistica
+4. Entrena un modelo de regresión logística con regularización Ridge y Lasso en train seleccionando el que mejor **AUC** tenga. Da las métricas en test.
+```{r}
 
 ```
 
-4. Entrena un modelo de regresión logística con regularización Ridge y Lasso en train seleccionando el que mejor **AUC** tenga. Da las métricas en test.
 5. Aporta los *log odds* de las variables predictoras sobre la variable objetivo.
 6. Si por cada verdadero positivo ganamos 100e y por cada falso positivo perdemos 20e. ¿ Qué rentabilidad aporta aplicar este modelo?
 
