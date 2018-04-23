@@ -1,0 +1,177 @@
+---
+title: "Caso Pŕactico Final"
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document: default
+---
+
+Tomaremos el dataset de aprobación de crédito bancario en https://archive.ics.uci.edu/ml/datasets/Credit+Approval . Los datos también se pueden cargar de la carpeta de contenido en  `crx.data`. La información del dataset está en https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.names y expone lo siguiente:
+
+      1. Title: Credit Approval
+
+      2. Sources: 
+          (confidential)
+          Submitted by quinlan@cs.su.oz.au
+      
+      3.  Past Usage:
+      
+          See Quinlan,
+          * "Simplifying decision trees", Int J Man-Machine Studies 27,
+            Dec 1987, pp. 221-234.
+          * "C4.5: Programs for Machine Learning", Morgan Kaufmann, Oct 1992
+        
+      4.  Relevant Information:
+      
+          This file concerns credit card applications.  All attribute names
+          and values have been changed to meaningless symbols to protect
+          confidentiality of the data.
+        
+          This dataset is interesting because there is a good mix of
+          attributes -- continuous, nominal with small numbers of
+          values, and nominal with larger numbers of values.  There
+          are also a few missing values.
+        
+      5.  Number of Instances: 690
+      
+      6.  Number of Attributes: 15 + class attribute
+      
+      7.  Attribute Information:
+      
+          A1:	b, a.
+          A2:	continuous.
+          A3:	continuous.
+          A4:	u, y, l, t.
+          A5:	g, p, gg.
+          A6:	c, d, cc, i, j, k, m, r, q, w, x, e, aa, ff.
+          A7:	v, h, bb, j, n, z, dd, ff, o.
+          A8:	continuous.
+          A9:	t, f.
+          A10:	t, f.
+          A11:	continuous.
+          A12:	t, f.
+          A13:	g, p, s.
+          A14:	continuous.
+          A15:	continuous.
+          A16: +,-         (class attribute)
+      
+      8.  Missing Attribute Values:
+          37 cases (5%) have one or more missing values.  The missing
+          values from particular attributes are:
+      
+          A1:  12
+          A2:  12
+          A4:   6
+          A5:   6
+          A6:   9
+          A7:   9
+          A14: 13
+      
+      9.  Class Distribution
+        
+          +: 307 (44.5%)
+          -: 383 (55.5%)
+      
+## Actividades a realizar
+
+## 1. Carga los datos. 
+Realiza una inspección por variables de la distribución de aprobación de crédito en función de cada atributo visualmente. Realiza las observaciones pertinentes. ¿ Qué variables son mejores para separar los datos?
+```{r Carga}
+CreApp <- read.csv('https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data',header= F,sep = ',', na.strings = "?")
+write.csv(CreApp, 'CreditApproval.csv')
+# Revision de datos
+colnames(CreApp) <- c('A1','A2','A3','A4','A5','A6','A7','A8','A9','A10','A11','A12','A13','A14','A15','CreditApproval')
+summary (CreApp)
+CreApp
+```
+# Graficamos V16 frente al resto de atributos
+
+```{r Graficamos}
+# Graficamos V16 frente al resto de atributos
+library(ggplot2)
+ggplot(CreApp, aes(A1,fill=CreditApproval))+geom_bar()
+ggplot(CreApp, aes(as.numeric(CreApp$A2),fill=CreditApproval))+geom_histogram(binwidth=25)
+ggplot(CreApp, aes(as.numeric(CreApp$A3),fill=CreditApproval))+geom_histogram(binwidth=2)
+ggplot(CreApp, aes(A4,fill=CreditApproval))+geom_bar()
+ggplot(CreApp, aes(A5,fill=CreditApproval))+geom_bar()
+ggplot(CreApp, aes(A6,fill=CreditApproval))+geom_bar()
+ggplot(CreApp, aes(A7,fill=CreditApproval))+geom_bar()
+ggplot(CreApp, aes(as.numeric(CreApp$A8),fill=CreditApproval))+geom_histogram(binwidth=2)
+# Cuanto menor A8, mayor probabilidad de rechazo del credito
+ggplot(CreApp, aes(A9,fill=CreditApproval))+geom_bar()
+# A9 discrimina mucho ya que la mayor parte de f's tiene aprobacion negativa y la mayor parte de t's la tienen positiva
+ggplot(CreApp, aes(A10,fill=CreditApproval))+geom_bar()
+# A10 tambien discrimina mucho ya que la mayor parte de f's tiene aprobacion negativa y la mayor parte de t's la tienen positiva
+ggplot(CreApp, aes(as.numeric(CreApp$A11),fill=CreditApproval))+geom_histogram(binwidth=5)
+# Los que mayor probabilidad de rechazo tienen son los de menor A11
+ggplot(CreApp, aes(A12,fill=CreditApproval))+geom_bar()
+ggplot(CreApp, aes(A13,fill=CreditApproval))+geom_bar()
+ggplot(CreApp, aes(as.numeric(CreApp$A14),fill=CreditApproval))+geom_histogram(binwidth=15)
+ggplot(CreApp, aes(A15, fill=CreditApproval))+geom_histogram(binwidth=2000)
+# Se observa que los creditos de mayor cantidad de A15 tienen mayor probabilidad de concederse, relacionados seguramente con las variables A9 o A10
+```
+# 2. Preparar el dataset
+2. Prepara el dataset convenientemente e imputa los valores faltantes usando la librería `missForest`
+```{r Preparar el dataset}
+# install.packages("missForest")
+library(missForest)
+CreApp_New <- CreApp
+CreApp_New <- missForest(CreApp)
+summary(CreApp_New)
+summary(CreApp_New$ximp)
+```
+# 3. Dividir dataset en train y test
+3. Divide el dataset tomando las primeras 590 instancias como train y las últimas 100 como test.
+
+```{r Dividir dataset en train y test}
+CreApp_New_train <- CreApp_New$ximp [1:590, 1:16]
+CreApp_New_test <- CreApp_New$ximp [591:690, 1:16]
+summary(CreApp_New_train)
+summary(CreApp_New_test)
+```
+# Modelos de regresion logistica
+4. Entrena un modelo de regresión logística con regularización Ridge y Lasso en train seleccionando el que mejor **AUC** tenga. Da las métricas en test.
+```{r Modelos de regresion logistica}
+# Buscamos el mejor modelo:
+fit1 <- glm(CreditApproval~., data=CreApp_New_train, family=binomial)
+fit0 <- glm(CreditApproval~1, data=CreApp_New_train, family=binomial)
+library(MASS)
+step <-stepAIC(fit0,direction="forward",scope=list(upper=fit1,lower=fit0))
+summary(step)
+```
+```{r Modelo de Regr. Log. con Regularizacion de Ridge}
+# Preparamos los datos para el modelo:
+X <- data.matrix(subset(CreApp_New_train, select= - CreditApproval))
+y <- as.numeric(CreApp_New_train$CreditApproval)
+# Obtenemos el modelo
+library(glmnet)
+set.seed(999)
+RegLog.ridge <- cv.glmnet(X, y, family='binomial', alpha=0, standardize=TRUE, type.measure='auc')
+summary(RegLog.ridge)
+plot(RegLog.ridge)
+cat('El lamdba minimo del modelo RegLog.ridge es: ', RegLog.ridge$lambda.min, '\n')
+summary(RegLog.ridge$cvm)
+```
+```{r Modelo de Regr. Log. con Regularizacion de Lasso}
+# Obtenemos el modelo
+set.seed(999)
+XLasso <- model.matrix(~ A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15-1, CreApp_New_train)
+yLasso <- as.numeric(CreApp_New_train$CreditApproval)
+RegLog.lasso <- cv.glmnet(XLasso, yLasso, family='binomial', alpha=1, standardize=TRUE, type.measure='auc')
+summary(RegLog.lasso)
+plot(RegLog.lasso)
+cat('El lamdba minimo del modelo RegLog.lasso es: ', RegLog.lasso$lambda.min, '\n')
+summary(RegLog.lasso$cvm)
+
+```
+
+
+# Aporta los *log odds*
+5. Aporta los *log odds* de las variables predictoras sobre la variable objetivo.
+
+```{r Aporta los *log odds*}
+
+```
+
+6. Si por cada verdadero positivo ganamos 100e y por cada falso positivo perdemos 20e. ¿ Qué rentabilidad aporta aplicar este modelo?
+
