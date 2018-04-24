@@ -76,7 +76,7 @@ Tomaremos el dataset de aprobación de crédito bancario en https://archive.ics.
 
 ## 1. Carga los datos. 
 Realiza una inspección por variables de la distribución de aprobación de crédito en función de cada atributo visualmente. Realiza las observaciones pertinentes. ¿ Qué variables son mejores para separar los datos?
-```{r}
+```{r Carga}
 CreApp <- read.csv('https://archive.ics.uci.edu/ml/machine-learning-databases/credit-screening/crx.data',header= F,sep = ',', na.strings = "?")
 write.csv(CreApp, 'CreditApproval.csv')
 # Revision de datos
@@ -86,7 +86,7 @@ CreApp
 ```
 # Graficamos V16 frente al resto de atributos
 
-```{r}
+```{r Graficamos}
 # Graficamos V16 frente al resto de atributos
 library(ggplot2)
 ggplot(CreApp, aes(A1,fill=CreditApproval))+geom_bar()
@@ -112,7 +112,7 @@ ggplot(CreApp, aes(A15, fill=CreditApproval))+geom_histogram(binwidth=2000)
 ```
 # 2. Preparar el dataset
 2. Prepara el dataset convenientemente e imputa los valores faltantes usando la librería `missForest`
-```{r}
+```{r Preparar el dataset}
 # install.packages("missForest")
 library(missForest)
 CreApp_New <- CreApp
@@ -123,18 +123,72 @@ summary(CreApp_New$ximp)
 # 3. Dividir dataset en train y test
 3. Divide el dataset tomando las primeras 590 instancias como train y las últimas 100 como test.
 
-```{r}
+```{r Dividir dataset en train y test}
 CreApp_New_train <- CreApp_New$ximp [1:590, 1:16]
 CreApp_New_test <- CreApp_New$ximp [591:690, 1:16]
 summary(CreApp_New_train)
 summary(CreApp_New_test)
 ```
-# Modelo de regresion logistica
+# Modelos de regresion logistica
 4. Entrena un modelo de regresión logística con regularización Ridge y Lasso en train seleccionando el que mejor **AUC** tenga. Da las métricas en test.
-```{r}
+```{r Modelos de regresion logistica}
+# Buscamos el mejor modelo:
+fit1 <- glm(CreditApproval~., data=CreApp_New_train, family=binomial)
+fit0 <- glm(CreditApproval~1, data=CreApp_New_train, family=binomial)
+library(MASS)
+step <-stepAIC(fit0,direction="forward",scope=list(upper=fit1,lower=fit0))
+summary(step)
+```
+```{r Modelo de Regr. Log. con Regularizacion de Ridge}
+# Preparamos los datos para el modelo:
+X <- data.matrix(subset(CreApp_New_train, select= - CreditApproval))
+y <- as.numeric(CreApp_New_train$CreditApproval)
+# Obtenemos el modelo
+library(glmnet)
+set.seed(999)
+RegLog.ridge <- cv.glmnet(X, y, family='binomial', alpha=0, standardize=TRUE, type.measure='auc')
+summary(RegLog.ridge)
+plot(RegLog.ridge)
+cat('El lamdba minimo del modelo RegLog.ridge es: ', RegLog.ridge$lambda.min, '\n')
+summary(RegLog.ridge$cvm)
+```
+```{r Modelo de Regr. Log. con Regularizacion de Lasso}
+# Obtenemos el modelo
+set.seed(999)
+XLasso <- model.matrix(~ A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15-1, CreApp_New_train)
+yLasso <- as.numeric(CreApp_New_train$CreditApproval)
+RegLog.lasso <- cv.glmnet(XLasso, yLasso, family='binomial', alpha=1, standardize=TRUE, type.measure='auc')
+summary(RegLog.lasso)
+plot(RegLog.lasso)
+cat('El lamdba minimo del modelo RegLog.lasso es: ', RegLog.lasso$lambda.min, '\n')
+```
+```{r Comparamos los modelos}
+print('Lasso:')
+summary(RegLog.lasso$cvm)
+print('Ridge:')
+summary(RegLog.ridge$cvm)
+print('Nos quedamos con el de Lasso puesto que es el que tiene mejor auc')
+```
+```{r Metricas en test}
+XLasso_test <- model.matrix(~ A1+A2+A3+A4+A5+A6+A7+A8+A9+A10+A11+A12+A13+A14+A15-1, CreApp_New_test)
+yLasso_test <- CreApp_New_test$CreditApproval
+yLasso_pred <- as.factor(predict.glmnet(RegLog.lasso$glmnet.fit, newx=XLasso_test, s=RegLog.lasso$lambda.min)>.5)
+yLasso_pred <- factor(yLasso_pred, labels = c('-','+'))
+library(caret)
+conMat <- confusionMatrix(yLasso_test, yLasso_pred, mode="everything")
+conMat
+```
+# Aporta los *log odds*
+5. Aporta los *log odds* de las variables predictoras sobre la variable objetivo.
 
+```{r Aporta los *log odds*}
+summary(RegLog.lasso)
+exp(coef(RegLog.lasso))
 ```
 
-5. Aporta los *log odds* de las variables predictoras sobre la variable objetivo.
 6. Si por cada verdadero positivo ganamos 100e y por cada falso positivo perdemos 20e. ¿ Qué rentabilidad aporta aplicar este modelo?
+```{r Rentabilidad del modelo}
+Rentabilidad <- 0.91*100 - 0.09*20
+Rentabilidad
+```
 
