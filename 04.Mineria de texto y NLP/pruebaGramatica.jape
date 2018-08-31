@@ -1,0 +1,14 @@
+Phase: Jobtitle  
+Input: Lookup  
+Options: control = appelt debug = true  
+ 
+Rule: Jobtitle1  
+(  
+ {Lookup.majorType == jobtitle}  
+ (  
+  {Lookup.majorType == jobtitle}  
+ )?  
+)  
+:jobtitle  
+-->  
+ :jobtitle.JobTitle = {rule = "JobTitle1"}
