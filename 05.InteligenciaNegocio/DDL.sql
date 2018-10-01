@@ -1,10 +1,29 @@
+-- drop table TMP_Auditoria;
+-- -----------------------------------------------------------------------------
+create table TMP_Auditoria (
+-- -----------------------------------------------------------------------------
+  COD_LOC             varchar(100) NULL,
+  NOMBRE_LOC          varchar(100) NULL,
+  CP                  integer      NULL,
+  POBLACION           varchar(100) NULL,
+  OFICINA             varchar(100) NULL,
+  PROVINCIA           varchar(100) NULL,
+  COD_PROY            varchar(100) NULL,
+  ID_EVALUACION       integer      NULL,
+  Fecha_jecucion      date         NULL,
+  COD_AUDITOR         varchar(100) NULL,
+  RESULTADO           double       NULL,
+  TITULO_CUESTIONARIO varchar(100) NULL
+);
+
+
 -- drop table D_Auditor;
 -- -----------------------------------------------------------------------------
 create table D_Auditor (
 -- -----------------------------------------------------------------------------
   id_auditor int        NOT NULL auto_increment,
   id_oficina varchar(3) NULL,
-  co_auditor int        NULL,
+  co_auditor varchar(25)NULL,
   PRIMARY KEY (id_auditor),
   UNIQUE KEY UK01_D_Auditor (id_auditor),
   UNIQUE KEY UK02_D_Auditor (id_oficina,co_auditor)
@@ -23,6 +42,8 @@ create table D_Geografia (
   UNIQUE KEY UK01_D_Geografia (id_geografia),
   UNIQUE KEY UK02_D_Geografia (id_codigo_postal)
 );
+insert into D_Geografia (id_codigo_postal, no_poblacion, no_provincia, no_pais)
+select 99999, 'N/A', 'N/A', 'N/A';
 
 -- drop table D_Local;
 -- -----------------------------------------------------------------------------
