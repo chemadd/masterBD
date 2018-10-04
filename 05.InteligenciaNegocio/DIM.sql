@@ -83,3 +83,16 @@ from TMP_Auditoria Aud
    and upper(Aud.provincia) = upper(Geo.no_provincia)
 where Dim.co_local IS NULL
 ;
+
+-- -----------------------------------------------------------------------------
+-- Dimension Cuestionario: Metemos los cuestionarios nuevos
+-- -----------------------------------------------------------------------------
+insert into D_Cuestionario (no_cuestionario, co_proyecto)
+select distinct TITULO_CUESTIONARIO, COD_PROY
+-- select *
+from TMP_Auditoria Aud
+  left join D_Cuestionario Dim
+    on Aud.TITULO_CUESTIONARIO = Dim.no_cuestionario
+   and Aud.COD_PROY = Dim.co_proyecto
+where Dim.no_cuestionario IS NULL
+;

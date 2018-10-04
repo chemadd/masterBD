@@ -56,8 +56,7 @@ create table D_Local (
   no_local     varchar(200) NULL,
   id_geografia int          NULL,  -- FK a D_Geografia
   PRIMARY KEY (id_local),
-  UNIQUE KEY UK01_D_Local (id_local),
-  UNIQUE KEY UK02_D_Local (co_local,id_geografia) -- ,
+  UNIQUE KEY UK01_D_Local (id_local)
   -- CONSTRAINT FOREIGN KEY FK01_D_Local (id_geografia)
   --   REFERENCES D_Geografia(id_geografia)
 );
@@ -126,10 +125,10 @@ create table D_Cuestionario (
 -- -----------------------------------------------------------------------------
   id_cuestionario int          NOT NULL auto_increment,
   no_cuestionario varchar(200) NOT NULL, 
-  co_proyecto     varchar(10)  NOT NULL,
+  co_proyecto     varchar(30)  NOT NULL,
   PRIMARY KEY (id_cuestionario),
   UNIQUE KEY UK01_D_Cuestionario (id_cuestionario),
-  UNIQUE KEY UK02_D_Cuestionario (no_cuestionario)
+  UNIQUE KEY UK02_D_Cuestionario (no_cuestionario,co_proyecto)
 );
 
 -- drop table F_Evaluacion;
