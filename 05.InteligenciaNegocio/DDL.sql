@@ -13,7 +13,8 @@ create table TMP_Auditoria (
   Fecha_jecucion      date         NULL,
   COD_AUDITOR         varchar(100) NULL,
   RESULTADO           double       NULL,
-  TITULO_CUESTIONARIO varchar(100) NULL
+  TITULO_CUESTIONARIO varchar(100) NULL,
+  POBLACION_STANDARD  varchar(100) NULL
 );
 
 
@@ -33,17 +34,18 @@ create table D_Auditor (
 -- -----------------------------------------------------------------------------
 create table D_Geografia (
 -- -----------------------------------------------------------------------------
-  id_geografia     int          NOT NULL auto_increment,
-  id_codigo_postal int          NULL,
-  no_poblacion     varchar(100) NULL,
-  no_provincia     varchar(100) NULL,
-  no_pais          varchar(100) NULL,
+  id_geografia          int          NOT NULL auto_increment,
+  id_codigo_postal      int          NULL,
+  no_poblacion          varchar(100) NULL,
+  no_poblacion_standard varchar(100) NULL,
+  no_provincia          varchar(100) NULL,
+  no_pais               varchar(100) NULL,
   PRIMARY KEY (id_geografia),
   UNIQUE KEY UK01_D_Geografia (id_geografia),
-  UNIQUE KEY UK02_D_Geografia (id_codigo_postal)
+  UNIQUE KEY UK02_D_Geografia (id_codigo_postal,no_poblacion,no_provincia)
 );
-insert into D_Geografia (id_codigo_postal, no_poblacion, no_provincia, no_pais)
-select 99999, 'N/A', 'N/A', 'N/A';
+insert into D_Geografia (id_codigo_postal, no_poblacion, no_poblacion_standard, no_provincia, no_pais)
+select 99999, 'N/A', 'N/A', 'N/A', 'N/A';
 
 -- drop table D_Local;
 -- -----------------------------------------------------------------------------
@@ -55,9 +57,9 @@ create table D_Local (
   id_geografia int          NULL,  -- FK a D_Geografia
   PRIMARY KEY (id_local),
   UNIQUE KEY UK01_D_Local (id_local),
-  UNIQUE KEY UK02_D_Local (co_local),
-  CONSTRAINT FOREIGN KEY FK01_D_Local (id_geografia)
-    REFERENCES D_Geografia(id_geografia)
+  UNIQUE KEY UK02_D_Local (co_local,id_geografia) -- ,
+  -- CONSTRAINT FOREIGN KEY FK01_D_Local (id_geografia)
+  --   REFERENCES D_Geografia(id_geografia)
 );
 
 -- drop table D_Fecha;
