@@ -82,7 +82,7 @@ delimiter ;;
 drop procedure if exists proc_rellenar_dias;;
 create procedure proc_rellenar_dias(in cantdias int) 
 begin
-  select coalesce(max(dt_fecha), date('2012-12-31')) into @maximodia from D_Fecha;
+  select coalesce(max(dt_fecha), date('1994-12-31')) into @maximodia from D_Fecha;
   set @totaldias := cantdias;
   set @numdias := 1;
   set lc_time_names = 'es_ES';
@@ -115,9 +115,15 @@ begin
 end
 ;;
 delimiter ;
-call proc_rellenar_dias(800);
-select *
+-- insertamos datos
+call proc_rellenar_dias(8000);
+insert into D_Fecha (dt_fecha, id_mes, no_mes, id_ano, no_dia, id_trimestre,no_trimestre)
+select convert('1900-01-01', date), 1, 'enero', 1900, 1, 1, 'Q1'
+;
+
+select min(dt_fecha), max(dt_fecha)
 from D_Fecha
+where dt_fecha > convert('1900-01-01', date)
 ;
 -- drop table D_Cuestionario;
 -- -----------------------------------------------------------------------------
@@ -142,6 +148,6 @@ create table F_Evaluacion (
   id_local        int    NOT NULL, 
   id_cuestionario int    NOT NULL, 
   vl_resultado    double NOT NULL,
-  PRIMARY KEY (id_fecha),
+  PRIMARY KEY (id_evaluacion),
   UNIQUE KEY UK01_F_Evaluacion (id_evaluacion)
 );

@@ -20,6 +20,7 @@ where Dim.co_auditor IS NULL;
 -- asignamos un valor incremental. Luego nos quedamos con el menor de ellos para así quedarnos
 -- con el nombre de población más repetido (y nos sirve también para evitar los duplicados
 -- en el caso de que dos nombres tengan el mismo valor de repeticiones máximas)
+drop table if exists TMP_Maximo, TMP_Auditoria_Geografia;
 create table TMP_Maximo(
   id_mas_repetida    int NOT NULL auto_increment,
   POBLACION_STANDARD varchar(100) NULL,
@@ -71,7 +72,7 @@ drop table TMP_Maximo;
 -- Dimension Local: Metemos los locales nuevos
 -- -----------------------------------------------------------------------------
 insert into D_Local (co_local, no_local, id_geografia)
-select distinct COD_LOC, NOMBRE_LOC, Geo.id_geografia
+select distinct COD_LOC, NOMBRE_LOC, coalesce(Geo.id_geografia,1) as id_geografia
 -- select *
 from TMP_Auditoria Aud
   left join D_Local Dim

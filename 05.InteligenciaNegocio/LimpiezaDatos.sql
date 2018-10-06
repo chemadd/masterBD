@@ -39,3 +39,14 @@ where upper(poblacion) like 'A %'
    
 -- Quedarían todavía casos por tratar, que habría que verificar de uno en uno, para tratar
 -- de generalizar o bien manejar de forma individual obtener un estandarizacion completa de nombres.
+
+-- Limpiamos el nombre del local
+update TMP_Auditoria
+set NOMBRE_LOC = upper(NOMBRE_LOC)
+where NOMBRE_LOC IS NOT NULL
+;
+-- Asociamos fecha 1900-01-01 a los dias inexistentes
+update TMP_Auditoria
+set Fecha_jecucion = convert('1900-01-01', date)
+where Fecha_jecucion IS NULL
+;

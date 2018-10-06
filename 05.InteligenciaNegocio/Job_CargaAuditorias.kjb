@@ -314,8 +314,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>931</xloc>
-      <yloc>111</yloc>
+      <xloc>720</xloc>
+      <yloc>112</yloc>
     </entry>
     <entry>
       <name>Extracion Origenes</name>
@@ -327,7 +327,7 @@
 </attribute></group></attributes>
       <specification_method>filename</specification_method>
       <job_object_id/>
-      <filename>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x2f;Global_Extraccion.kjb</filename>
+      <filename>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x2f;Job_ExtraccionOrigen.kjb</filename>
       <jobname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
@@ -362,7 +362,7 @@
       <type>JOB</type>
       <specification_method>filename</specification_method>
       <job_object_id/>
-      <filename>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x2f;Global_transformacion.kjb</filename>
+      <filename>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x2f;Job_LimpiaDatosTMP.kjb</filename>
       <jobname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
@@ -393,7 +393,7 @@
       <type>JOB</type>
       <specification_method>filename</specification_method>
       <job_object_id/>
-      <filename>&#x24;&#x7b;Internal.Job.Filename.Directory&#x7d;&#x2f;Global_Carga.kjb</filename>
+      <filename>&#x2f;home&#x2f;pentaho&#x2f;MasterBI&#x2f;Unidad5&#x2f;PracticaEntrega&#x2f;Job_CargaDIMyFACT.kjb</filename>
       <jobname/>
       <arg_from_previous>N</arg_from_previous>
       <params_from_previous>N</params_from_previous>
@@ -543,45 +543,6 @@
       <yloc>389</yloc>
     </entry>
     <entry>
-      <name>Backups de Seguridad</name>
-      <description/>
-      <type>JOB</type>
-<attributes><group><name>JobRestart</name>
-<attribute><key>CheckpointMark</key>
-<value>Y</value>
-</attribute></group></attributes>
-      <specification_method>filename</specification_method>
-      <job_object_id/>
-      <filename>file&#x3a;&#x2f;&#x2f;&#x2f;G&#x3a;&#x2f;Clientes&#x2f;CIFF&#x2f;ETL&#x5c;Global_Carga.kjb</filename>
-      <jobname/>
-      <arg_from_previous>N</arg_from_previous>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <slave_server_name/>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <expand_remote_job>N</expand_remote_job>
-      <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
-      <parameters>        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>      <set_append_logfile>N</set_append_logfile>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>780</xloc>
-      <yloc>111</yloc>
-<attributes><group><name>JobRestart</name>
-<attribute><key>CheckpointMark</key>
-<value>Y</value>
-</attribute></group></attributes>
-    </entry>
-    <entry>
       <name>Mail Notification Error en ETL</name>
       <description/>
       <type>MAIL</type>
@@ -696,24 +657,6 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Carga DataWarehouse</from>
-      <to>Backups de Seguridad</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Backups de Seguridad</from>
-      <to>Success</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
       <from>Comprobacion-Prepare</from>
       <to>Extracion Origenes</to>
       <from_nr>0</from_nr>
@@ -740,29 +683,17 @@
       <evaluation>N</evaluation>
       <unconditional>Y</unconditional>
     </hop>
+    <hop>
+      <from>Carga DataWarehouse</from>
+      <to>Success</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
   </hops>
   <notepads>
-    <notepad>
-      <note>Proces Gen&#xe9;rico ETL&#x3a;&#xd;&#xa;  Extraci&#xf3;n&#xd;&#xa;  Transformacion&#xd;&#xa;  Carga</note>
-      <xloc>720</xloc>
-      <yloc>288</yloc>
-      <width>120</width>
-      <heigth>74</heigth>
-      <fontname>Segoe UI</fontname>
-      <fontsize>9</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>255</fontcolorred>
-      <fontcolorgreen>255</fontcolorgreen>
-      <fontcolorblue>255</fontcolorblue>
-      <backgroundcolorred>128</backgroundcolorred>
-      <backgroundcolorgreen>0</backgroundcolorgreen>
-      <backgroundcolorblue>0</backgroundcolorblue>
-      <bordercolorred>100</bordercolorred>
-      <bordercolorgreen>100</bordercolorgreen>
-      <bordercolorblue>100</bordercolorblue>
-      <drawshadow>Y</drawshadow>
-    </notepad>
   </notepads>
 <attributes><group><name>JobRestart</name>
 <attribute><key>UniqueConnections</key>
