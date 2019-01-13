@@ -1,0 +1,204 @@
+[3J[H[2JPractica entrega - Apartado D --> Proceso 3: Consumidor
+Busca si la cola miFifo.fifo existe y si es así va leyendo mensajes cada 6 segundos.
+Leemos de la cola: https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo
+13/01/2019 20:00:51: Mensaje leido:
+"13/01/2019 20:00:38: Mensaje 1 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:01:04: Mensaje leido:
+"13/01/2019 20:00:40: Mensaje 2 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:01:17: Mensaje leido:
+"13/01/2019 20:00:44: Mensaje 3 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:01:30: Mensaje leido:
+"13/01/2019 20:00:48: Mensaje 4 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:01:42: Mensaje leido:
+"13/01/2019 20:00:53: Mensaje 5 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:01:56: Mensaje leido:
+"13/01/2019 20:00:56: Mensaje 6 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:02:07: Mensaje leido:
+"13/01/2019 20:00:58: Mensaje 7 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:02:21: Mensaje leido:
+"13/01/2019 20:01:00: Mensaje 8 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:02:33: Mensaje leido:
+"13/01/2019 20:01:02: Mensaje 9 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:02:46: Mensaje leido:
+"13/01/2019 20:01:05: Mensaje 10 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:02:58: Mensaje leido:
+"13/01/2019 20:01:07: Mensaje 11 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:03:10: Mensaje leido:
+"13/01/2019 20:01:09: Mensaje 12 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:03:21: Mensaje leido:
+"13/01/2019 20:01:11: Mensaje 13 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:03:34: Mensaje leido:
+"13/01/2019 20:01:12: Mensaje 14 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:03:46: Mensaje leido:
+"13/01/2019 20:01:15: Mensaje 15 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:03:59: Mensaje leido:
+"13/01/2019 20:01:20: Mensaje 16 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:04:12: Mensaje leido:
+"13/01/2019 20:01:23: Mensaje 17 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:04:25: Mensaje leido:
+"13/01/2019 20:01:25: Mensaje 18 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:04:39: Mensaje leido:
+"13/01/2019 20:01:27: Mensaje 19 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:04:50: Mensaje leido:
+"13/01/2019 20:01:29: Mensaje 20 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:05:01: Mensaje leido:
+"13/01/2019 20:01:32: Mensaje 21 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:05:10: Mensaje leido:
+"13/01/2019 20:01:34: Mensaje 22 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:05:21: Mensaje leido:
+"13/01/2019 20:01:35: Mensaje 23 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:05:30: Mensaje leido:
+"13/01/2019 20:01:37: Mensaje 24 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:05:40: Mensaje leido:
+"13/01/2019 20:01:39: Mensaje 25 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:05:50: Mensaje leido:
+"13/01/2019 20:01:41: Mensaje 26 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:06:00: Mensaje leido:
+"13/01/2019 20:01:45: Mensaje 27 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:06:09: Mensaje leido:
+"13/01/2019 20:01:48: Mensaje 28 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:06:21: Mensaje leido:
+"13/01/2019 20:01:51: Mensaje 29 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:06:32: Mensaje leido:
+"13/01/2019 20:01:53: Mensaje 30 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:06:44: Mensaje leido:
+"13/01/2019 20:01:56: Mensaje 31 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:06:55: Mensaje leido:
+"13/01/2019 20:01:59: Mensaje 32 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:07:05: Mensaje leido:
+"13/01/2019 20:02:01: Mensaje 33 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:07:18: Mensaje leido:
+"13/01/2019 20:02:02: Mensaje 34 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:07:30: Mensaje leido:
+"13/01/2019 20:02:04: Mensaje 35 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:07:40: Mensaje leido:
+"13/01/2019 20:02:07: Mensaje 36 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:07:49: Mensaje leido:
+"13/01/2019 20:02:10: Mensaje 37 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:07:59: Mensaje leido:
+"13/01/2019 20:02:14: Mensaje 38 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:08:09: Mensaje leido:
+"13/01/2019 20:02:16: Mensaje 39 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:08:18: Mensaje leido:
+"13/01/2019 20:02:19: Mensaje 40 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:08:28: Mensaje leido:
+"13/01/2019 20:02:22: Mensaje 41 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:08:38: Mensaje leido:
+"13/01/2019 20:02:24: Mensaje 42 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:08:48: Mensaje leido:
+"13/01/2019 20:02:26: Mensaje 43 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:08:59: Mensaje leido:
+"13/01/2019 20:02:28: Mensaje 44 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:09:14: Mensaje leido:
+"13/01/2019 20:02:29: Mensaje 45 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:09:30: Mensaje leido:
+"13/01/2019 20:02:32: Mensaje 46 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:09:44: Mensaje leido:
+"13/01/2019 20:02:35: Mensaje 47 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:09:55: Mensaje leido:
+"13/01/2019 20:02:38: Mensaje 48 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:10:05: Mensaje leido:
+"13/01/2019 20:02:41: Mensaje 49 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:10:16: Mensaje leido:
+"13/01/2019 20:02:45: Mensaje 50 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:10:27: Mensaje leido:
+"13/01/2019 20:02:48: Mensaje 51 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:10:38: Mensaje leido:
+"13/01/2019 20:02:50: Mensaje 52 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:10:48: Mensaje leido:
+"13/01/2019 20:02:51: Mensaje 53 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:10:59: Mensaje leido:
+"13/01/2019 20:02:53: Mensaje 54 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:11:08: Mensaje leido:
+"13/01/2019 20:02:55: Mensaje 55 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:11:20: Mensaje leido:
+"13/01/2019 20:02:57: Mensaje 56 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:11:32: Mensaje leido:
+"13/01/2019 20:03:00: Mensaje 57 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:11:44: Mensaje leido:
+"13/01/2019 20:03:02: Mensaje 58 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:11:57: Mensaje leido:
+"13/01/2019 20:03:05: Mensaje 59 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:12:10: Mensaje leido:
+"13/01/2019 20:03:09: Mensaje 60 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:12:19: Mensaje leido:
+"13/01/2019 20:03:11: Mensaje 61 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:12:29: Mensaje leido:
+"13/01/2019 20:03:14: Mensaje 62 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:12:38: Mensaje leido:
+"13/01/2019 20:03:15: Mensaje 63 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:12:47: Mensaje leido:
+"13/01/2019 20:03:17: Mensaje 64 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:12:56: Mensaje leido:
+"13/01/2019 20:03:18: Mensaje 65 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:13:06: Mensaje leido:
+"13/01/2019 20:03:21: Mensaje 66 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:13:15: Mensaje leido:
+"13/01/2019 20:03:24: Mensaje 67 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:13:25: Mensaje leido:
+"13/01/2019 20:03:27: Mensaje 68 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:13:35: Mensaje leido:
+"13/01/2019 20:03:30: Mensaje 69 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:13:48: Mensaje leido:
+"13/01/2019 20:03:32: Mensaje 70 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:14:01: Mensaje leido:
+"13/01/2019 20:03:35: Mensaje 71 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:14:15: Mensaje leido:
+"13/01/2019 20:03:37: Mensaje 72 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:14:28: Mensaje leido:
+"13/01/2019 20:03:39: Mensaje 73 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:14:40: Mensaje leido:
+"13/01/2019 20:03:41: Mensaje 74 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:14:51: Mensaje leido:
+"13/01/2019 20:03:42: Mensaje 75 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:15:02: Mensaje leido:
+"13/01/2019 20:03:45: Mensaje 76 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:15:13: Mensaje leido:
+"13/01/2019 20:03:48: Mensaje 77 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:15:25: Mensaje leido:
+"13/01/2019 20:03:52: Mensaje 78 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:15:37: Mensaje leido:
+"13/01/2019 20:03:54: Mensaje 79 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:15:46: Mensaje leido:
+"13/01/2019 20:03:56: Mensaje 80 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:15:58: Mensaje leido:
+"13/01/2019 20:03:58: Mensaje 81 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:16:08: Mensaje leido:
+"13/01/2019 20:04:01: Mensaje 82 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:16:20: Mensaje leido:
+"13/01/2019 20:04:03: Mensaje 83 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:16:30: Mensaje leido:
+"13/01/2019 20:04:05: Mensaje 84 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:16:41: Mensaje leido:
+"13/01/2019 20:04:06: Mensaje 85 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:16:51: Mensaje leido:
+"13/01/2019 20:04:08: Mensaje 86 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:17:04: Mensaje leido:
+"13/01/2019 20:04:12: Mensaje 87 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:17:15: Mensaje leido:
+"13/01/2019 20:04:17: Mensaje 88 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:17:26: Mensaje leido:
+"13/01/2019 20:04:19: Mensaje 89 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:17:37: Mensaje leido:
+"13/01/2019 20:04:20: Mensaje 90 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:17:48: Mensaje leido:
+"13/01/2019 20:04:22: Mensaje 91 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:17:58: Mensaje leido:
+"13/01/2019 20:04:24: Mensaje 92 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:18:09: Mensaje leido:
+"13/01/2019 20:04:27: Mensaje 93 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:18:20: Mensaje leido:
+"13/01/2019 20:04:29: Mensaje 94 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:18:31: Mensaje leido:
+"13/01/2019 20:04:31: Mensaje 95 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:18:41: Mensaje leido:
+"13/01/2019 20:04:33: Mensaje 96 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:18:52: Mensaje leido:
+"13/01/2019 20:04:36: Mensaje 97 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:19:02: Mensaje leido:
+"13/01/2019 20:04:40: Mensaje 98 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:19:14: Mensaje leido:
+"13/01/2019 20:04:43: Mensaje 99 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+13/01/2019 20:19:25: Mensaje leido:
+"13/01/2019 20:04:44: Mensaje 100 en cola https://eu-west-1.queue.amazonaws.com/083742125293/miFifo.fifo"
+Ya se han leido todos los mensajes de la cola

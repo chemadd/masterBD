@@ -1,0 +1,2 @@
+{"Rk":15,"Name":"Jack Haley","Age":32,"G":1,"GS":0,"MP":7,"FG":2,"FGA":6,"FG_pc":0.333,"TresP":0,"TresPA":0,"TresP_pc":0,"DosP":2,"DosPA":6,"DosP_pc":0.333,"eFG_pc":0.333,"FT":1,"FTA":2,"FT_pc":0.5,"ORB":1,"DRB":1,"TRB":2,"AST":0,"STL":0,"BLK":0,"TOV":1,"PF":2,"PTS_G":5}
+
