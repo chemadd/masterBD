@@ -1,0 +1,123 @@
+---
+title: "Oficinas de turismo en Madrid"
+output:
+  html_document:
+    df_print: paged
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+# Preparamos el entorno e importamos librerias
+rm(list=ls())
+setwd("/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/")
+library(rgdal)
+library(rgeos)
+
+```
+# Obtencion de los datos espaciales
+```{r}
+# Hoteles de Madrid, oficina de turismo y barrio:
+i_data_hoteles1 <- readOGR(dsn='/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/data', layer="hoteles1")
+i_data_hoteles2 <- readOGR(dsn='/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/data', layer="hoteles2")
+i_data_hoteles3 <- readOGR(dsn='/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/data', layer="hoteles3")
+i_data_hoteles4 <- readOGR(dsn='/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/data', layer="hoteles4")
+i_data_hoteles5 <- readOGR(dsn='/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/data', layer="hoteles5")
+i_data_oficinaturismo <-readOGR(dsn='/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/data', layer="oficinaturismo")
+i_data_barrios <- readOGR(dsn='/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/data', layer="200001543")
+# Unificamos los datos de los hoteles:
+# i_data_hoteles <- rbind(i_data_hoteles1, i_data_hoteles2, i_data_hoteles3, i_data_hoteles4, i_data_hoteles5)
+i_data_hoteles <- rbind(i_data_hoteles2, i_data_hoteles3, i_data_hoteles4, i_data_hoteles5)
+str (i_data_hoteles)
+
+```
+```{r}
+
+# Georreferenciamos usando EPSG y obtenemos los codigos EPSG de Madrid
+EPSG <- make_EPSG()
+EPSG[grepl("$Spain$", EPSG$note), ]
+
+# Proyeccion segun CRS elegido:
+proj4string(i_data_hoteles) <- CRS("+init=epsg:2062")
+proj4string(i_data_oficinaturismo) <- CRS("+init=epsg:2062")
+proj4string(i_data_barrios) <- CRS("+init=epsg:2062")
+
+i_data_hoteles <- spTransform(i_data_hoteles, proj4string(i_data_hoteles))
+i_data_oficinaturismo <- spTransform(i_data_oficinaturismo, proj4string(i_data_oficinaturismo))
+i_data_barrios <- spTransform(i_data_barrios, proj4string(i_data_barrios))
+
+# Barrios del centro:
+i_data_centro <- i_data_barrios[as.character(i_data_barrios$GEOCODIGO)>= "079011" & as.character(i_data_barrios$GEOCODIGO) <= "079052", ]
+plot(i_data_centro)
+points(i_data_hoteles, cex = .5)
+points(i_data_oficinaturismo, cex = 1, pch = 19)
+
+# Join para quedarnos solo con los hoteles y oficinas del centro
+i_data_hoteles_centro <- i_data_hoteles[i_data_centro, ]
+i_data_oficinaturismo_centro <- i_data_oficinaturismo[i_data_centro, ]
+plot(i_data_centro)
+points(i_data_hoteles_centro, cex = .5)
+points(i_data_oficinaturismo_centro, cex = 1, pch = 19)
+```
+# Obtenemos los insights
+```{r}
+# Zona de influencia de las oficinas de turismo del centro
+i_inf_oficinaturismo <- gBuffer(spgeom = i_data_oficinaturismo_centro,width = 500)
+plot(i_data_centro)
+plot(i_inf_oficinaturismo, add=T, col="orange")
+points(i_data_hoteles_centro, cex = .5)
+points(i_data_oficinaturismo_centro, cex = 1, pch = 19)
+```
+
+```{r}
+# Nos quedamos con los hoteles dentor de la zona de influencia de turismo
+i_data_hoteles_centro_oficina <- i_data_hoteles[i_inf_oficinaturismo, ]
+plot(i_data_centro)
+plot(i_inf_oficinaturismo, add=T, col="orange")
+points(i_data_hoteles_centro, cex = .5)
+points(i_data_hoteles_centro_oficina, cex = 1)
+points(i_data_oficinaturismo_centro, cex = 1, pch = 19)
+
+# Nos quedamos con los que quedan fuera de la zona de influencia
+## Primero buscamos las etiquetas en la zona de influencia:
+sel_etiqueta_oficinaturismo <- i_data_hoteles_centro_oficina$ETIQUETA
+i_data_oficinaturismo_hotelescentro <- is.element(i_data_hoteles_centro$ETIQUETA, sel_etiqueta_oficinaturismo)
+i_data_hoteles_centro_no_oficina <- i_data_hoteles_centro[!i_data_oficinaturismo_hotelescentro, ]
+plot(i_data_centro)
+plot(i_inf_oficinaturismo, add=T, col="orange")
+points(i_data_hoteles_centro_no_oficina, cex = .5)
+points(i_data_oficinaturismo_centro, cex = 1, pch = 19)
+
+```
+## Clusterizamos para segmentar los hoteles de fuera de las zonas de influencia
+```{r}
+set.seed(444)
+segmentacion <- kmeans(i_data_hoteles_centro_no_oficina@coords, 4)
+segmento_esp <- SpatialPoints(coords = segmentacion$centers)
+proj4string(segmento_esp) <- CRS("+init=epsg:2062")
+segmento_esp <- spTransform(segmento_esp, proj4string(segmento_esp))
+plot(i_data_centro)
+plot(i_inf_oficinaturismo, add=T, col="orange")
+points(i_data_hoteles_centro_no_oficina, cex = 1, pch = 19, col=segmentacion$cluster)
+points(i_data_oficinaturismo_centro, cex = 1, pch = 19)
+points(segmento_esp, cex = 2, pch = 19)
+
+```
+
+```{r}
+print('i_data_hoteles2:--------------------------------------------------------------------\n')
+str(i_data_hoteles2)
+print('i_data_hoteles1:--------------------------------------------------------------------\n')
+str(i_data_hoteles1)
+print('rbind ------------------------------------------------------------------------\n')
+
+# Como las estaciones estan en un sistema distinto, tratamos de proyectarlas en CRS:
+i_data_hoteles11 <- spTransform(i_data_hoteles1, CRSobj = CRS(proj4string(i_data_hoteles2)))
+
+i_data_hoteles <- rbind(i_data_hoteles11, i_data_hoteles2,i_data_hoteles3, i_data_hoteles4, i_data_hoteles5)
+str (i_data_hoteles)
+```
+
+
