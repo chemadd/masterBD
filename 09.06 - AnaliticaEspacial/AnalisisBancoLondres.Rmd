@@ -1,0 +1,73 @@
+---
+title: "CASO PRACTICO - ANALITICA ESPACIAL"
+output: html_notebook
+---
+
+```{r}
+# Preparamos el entorno, importamos librerias y leemos ficheros
+rm(list=ls())
+setwd("/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/")
+library(rgdal)
+library(rgeos)
+library(tmap)
+library(OpenStreetMap)
+
+# Configuramos graficos estaticos
+tmap_mode("plot")
+
+# Leemos datos
+LondonCustomer <- read.csv('/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/data/LondonCustomer.csv',header= T,sep = ';', na.strings = "?")
+LondonSports <- readOGR(dsn='/home/chema/MasterBI/practicas/09_05.RSpatial/RSpatialTutorial/data', layer="london_sport")
+
+```
+
+# Analitica para cierre de 3 oficinas.
+## Criterio de seleccion: sucursales con menor volumen de negocio 
+### de clientela menor de 55 años
+### Volumen de negocio = suma de consumo de todos los productos
+
+```{r}
+# Previsualizamos los datos
+head(LondonCustomer)
+# Comprobamos la estructura del objeto
+str(LondonSports)
+```
+
+```{r}
+# Nos quedamos con los clientes menores de 55 años
+LondonCustomerAnalisis <- LondonCustomer[LondonCustomer$AGE<55, ]
+# Sumamos sus consumos
+LondonCustomerAnalisis$NETPRICE_PRO14_AMT <- as.numeric(LondonCustomerAnalisis$NETPRICE_PRO14_AMT)
+LondonCustomerAnalisis$Suma = rowSums(LondonCustomerAnalisis[ , 7:13])
+# Nos quedamos con los 3 municipios de menor consumo:
+VentasDistrito <- sort(tapply(LondonCustomerAnalisis$Suma, LondonCustomerAnalisis$name, sum), decreasing = F)
+VentasDistritoPeores <- head(VentasDistrito, 3)
+VentasDistritoPeores
+print('Los distritos con peor venta en el rango de edad de menores de 55 años son:')
+names(VentasDistritoPeores)
+# Seleccionamos esos distritos con las menores ventas, para destacarlos en el mapa:
+LondonSportsBajaVenta <- LondonSports$name == names(VentasDistritoPeores)[1] | LondonSports$name == names(VentasDistritoPeores)[2] | LondonSports$name == names(VentasDistritoPeores)[3]
+LondonSportsCierre <- LondonSports[LondonSportsBajaVenta,]
+plot(LondonSports, col = "lightgreen")
+plot(LondonSportsCierre, col="red", add = TRUE)
+```
+
+```{r}
+# Para georreferenciar correctamente un objeto, primero transformarlo en CRS geografico
+LondonSports_wgs <- spTransform(LondonSports, CRS("+init=epsg:4326"))
+LondonSportsCierre_wgs <- spTransform(LondonSportsCierre, CRS("+init=epsg:4326"))
+# Creamos un mapa base con tmap:
+osm_tiles <- tmaptools::read_osm(bbox(LondonSportsCierre_wgs))
+# Pintamos el mapa en capas:
+tm_shape(osm_tiles) + 
+  tm_raster() + 
+  tm_shape(LondonSports_wgs) +
+  tm_fill("name", fill.title = "Oficinas a cerrar", scale = 0.8, alpha = 0.5) +
+  tm_layout(legend.position = c(0.89, 0.02))
+
+```
+
+
+
+
+
