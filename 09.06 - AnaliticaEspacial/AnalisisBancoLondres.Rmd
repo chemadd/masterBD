@@ -67,30 +67,12 @@ zonas_buffer <- gBuffer(spgeom = centCierre, width = 1400)
 municipios_buffer = LondonSports[zonas_buffer, ]
 plot(LondonSports, col = "lightgrey")
 plot(municipios_buffer, col = "orange", add = TRUE)
-plot(centCierre, col="red", add = TRUE,pch=1)
+plot(LondonSportsCierre, col="red", add = TRUE)
+plot(centCierre, col="green", add = TRUE,pch=1)
 
 ```
 
 ```{r}
-apply(gDistance(LondonSports,centCierre, byid=TRUE),2,min)
+str(zonas_buffer)
 ```
-
-```{r}
-# Para georreferenciar correctamente un objeto, primero transformarlo en CRS geografico
-LondonSports_wgs <- spTransform(LondonSports, CRS("+init=epsg:4326"))
-LondonSportsCierre_wgs <- spTransform(LondonSportsCierre, CRS("+init=epsg:4326"))
-# Creamos un mapa base con tmap:
-osm_tiles <- tmaptools::read_osm(bbox(LondonSportsCierre_wgs))
-# Pintamos el mapa en capas:
-tm_shape(osm_tiles) + 
-  tm_raster() + 
-  tm_shape(LondonSports_wgs) +
-  tm_fill("name", fill.title = "Oficinas a cerrar", scale = 0.8, alpha = 0.5) +
-  tm_layout(legend.position = c(0.89, 0.02))
-
-```
-
-
-
-
 
