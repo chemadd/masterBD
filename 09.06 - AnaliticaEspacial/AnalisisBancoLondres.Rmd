@@ -21,7 +21,7 @@ LondonSports <- readOGR(dsn='/home/chema/MasterBI/practicas/09_05.RSpatial/RSpat
 
 ```
 
-# Analitica para cierre de 3 oficinas.
+# 1. Analitica para cierre de 3 oficinas.
 ## Criterio de seleccion: sucursales con menor volumen de negocio 
 ### de clientela menor de 55 años
 ### Volumen de negocio = suma de consumo de todos los productos
@@ -50,6 +50,29 @@ LondonSportsBajaVenta <- LondonSports$name == names(VentasDistritoPeores)[1] | L
 LondonSportsCierre <- LondonSports[LondonSportsBajaVenta,]
 plot(LondonSports, col = "lightgreen")
 plot(LondonSportsCierre, col="red", add = TRUE)
+```
+# 2. Analisis de trasvase de clientes a otras oficinas, segun cercania por centro geografico de los distritos
+
+```{r}
+# Obtenemos los centroides de cada distrito y los visualizamos junto con los cerrados
+cent_London <- gCentroid(LondonSports, byid = T)
+plot(LondonSports)
+plot(LondonSportsCierre, col="red", add = TRUE)
+points(cent_London,pch=1)
+
+# Zonas a menos de 1,4 km del centroide geografico de los cerrados. Lo guardamos en un buffer
+centCierre <- cent_London[LondonSportsBajaVenta,]
+zonas_buffer <- gBuffer(spgeom = centCierre, width = 1400)
+# Visualizamos las sucursales a cerrar y aquellas que pueden sustituirlas por cercania
+municipios_buffer = LondonSports[zonas_buffer, ]
+plot(LondonSports, col = "lightgrey")
+plot(municipios_buffer, col = "orange", add = TRUE)
+plot(centCierre, col="red", add = TRUE,pch=1)
+
+```
+
+```{r}
+apply(gDistance(LondonSports,centCierre, byid=TRUE),2,min)
 ```
 
 ```{r}
