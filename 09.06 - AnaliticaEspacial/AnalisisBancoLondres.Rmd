@@ -72,7 +72,6 @@ plot(centCierre, col="green", add = TRUE,pch=1)
 
 ```
 
-```{r}
-str(zonas_buffer)
-```
+
+
 
